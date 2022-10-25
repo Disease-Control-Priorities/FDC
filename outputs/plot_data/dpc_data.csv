@@ -1,0 +1,205 @@
+"year","intervention","metric","val"
+2017,"Business as usual","Deaths",14710208.0419283
+2017,"Polypill","Deaths",14710208.0419283
+2017,"Polypill w/ aspirin","Deaths",14710208.0419283
+2018,"Business as usual","Deaths",14802975.5252366
+2018,"Polypill","Deaths",14802975.5252366
+2018,"Polypill w/ aspirin","Deaths",14802975.5252366
+2019,"Business as usual","Deaths",16078083.2430393
+2019,"Polypill","Deaths",16078083.2430393
+2019,"Polypill w/ aspirin","Deaths",16078083.2430393
+2020,"Business as usual","Deaths",16822570.7956117
+2020,"Polypill","Deaths",16822570.7956117
+2020,"Polypill w/ aspirin","Deaths",16822570.7956117
+2021,"Business as usual","Deaths",17355834.9908348
+2021,"Polypill","Deaths",17355834.9908348
+2021,"Polypill w/ aspirin","Deaths",17355834.9908348
+2022,"Business as usual","Deaths",17812549.5078243
+2022,"Polypill","Deaths",17812549.5078243
+2022,"Polypill w/ aspirin","Deaths",17812549.5078243
+2023,"Business as usual","Deaths",18321946.3831962
+2023,"Polypill","Deaths",18155351.8936081
+2023,"Polypill w/ aspirin","Deaths",18124619.107507
+2024,"Business as usual","Deaths",18826404.302886
+2024,"Polypill","Deaths",18463172.9323231
+2024,"Polypill w/ aspirin","Deaths",18394779.2183883
+2025,"Business as usual","Deaths",19344952.4921195
+2025,"Polypill","Deaths",18764418.6280776
+2025,"Polypill w/ aspirin","Deaths",18652903.8078569
+2026,"Business as usual","Deaths",19895288.5274795
+2026,"Polypill","Deaths",19077842.018316
+2026,"Polypill w/ aspirin","Deaths",18918100.1705589
+2027,"Business as usual","Deaths",20478946.5566161
+2027,"Polypill","Deaths",19404811.5309014
+2027,"Polypill w/ aspirin","Deaths",19191851.0745232
+2028,"Business as usual","Deaths",21105970.4459258
+2028,"Polypill","Deaths",19755217.1807247
+2028,"Polypill w/ aspirin","Deaths",19484102.6740464
+2029,"Business as usual","Deaths",21775618.8037321
+2029,"Polypill","Deaths",20127959.9909052
+2029,"Polypill w/ aspirin","Deaths",19793796.9422635
+2030,"Business as usual","Deaths",22491589.8413771
+2030,"Polypill","Deaths",20526751.7992501
+2030,"Polypill w/ aspirin","Deaths",20124686.3669852
+2031,"Business as usual","Deaths",23251155.8681341
+2031,"Polypill","Deaths",20948452.9622585
+2031,"Polypill w/ aspirin","Deaths",20473634.4445124
+2032,"Business as usual","Deaths",24053381.480519
+2032,"Polypill","Deaths",21393113.4431634
+2032,"Polypill w/ aspirin","Deaths",20840905.3739934
+2033,"Business as usual","Deaths",24895019.1665014
+2033,"Polypill","Deaths",21858457.3099082
+2033,"Polypill w/ aspirin","Deaths",21224421.8328367
+2034,"Business as usual","Deaths",25769732.22234
+2034,"Polypill","Deaths",22339466.4828242
+2034,"Polypill w/ aspirin","Deaths",21619424.6247024
+2035,"Business as usual","Deaths",26674950.1314431
+2035,"Polypill","Deaths",22845897.4887194
+2035,"Polypill w/ aspirin","Deaths",22037371.5653651
+2036,"Business as usual","Deaths",27598602.1277897
+2036,"Polypill","Deaths",23362216.0567706
+2036,"Polypill w/ aspirin","Deaths",22461842.0867037
+2037,"Business as usual","Deaths",28534715.6304984
+2037,"Polypill","Deaths",23890420.3475151
+2037,"Polypill w/ aspirin","Deaths",22896877.3870568
+2038,"Business as usual","Deaths",29476765.5284973
+2038,"Polypill","Deaths",24419968.5386205
+2038,"Polypill w/ aspirin","Deaths",23331497.3771779
+2039,"Business as usual","Deaths",30411491.2726463
+2039,"Polypill","Deaths",24933839.1413532
+2039,"Polypill w/ aspirin","Deaths",23747250.3114174
+2040,"Business as usual","Deaths",31328299.4742283
+2040,"Polypill","Deaths",25429736.0399742
+2040,"Polypill w/ aspirin","Deaths",24143551.7479091
+2041,"Business as usual","Deaths",32227002.5725558
+2041,"Polypill","Deaths",25989757.9452911
+2041,"Polypill w/ aspirin","Deaths",24610867.8273
+2042,"Business as usual","Deaths",33101974.820714
+2042,"Polypill","Deaths",26672437.1882452
+2042,"Polypill w/ aspirin","Deaths",25209871.9798308
+2043,"Business as usual","Deaths",33941524.7800403
+2043,"Polypill","Deaths",27427210.304459
+2043,"Polypill w/ aspirin","Deaths",25894038.0828389
+2044,"Business as usual","Deaths",34793349.0571191
+2044,"Polypill","Deaths",28200881.8194864
+2044,"Polypill w/ aspirin","Deaths",26598881.0895454
+2045,"Business as usual","Deaths",35663984.4028289
+2045,"Polypill","Deaths",28996859.5151422
+2045,"Polypill w/ aspirin","Deaths",27326608.345223
+2046,"Business as usual","Deaths",36586653.5110822
+2046,"Polypill","Deaths",29853321.429632
+2046,"Polypill w/ aspirin","Deaths",28116235.715199
+2047,"Business as usual","Deaths",37520413.6580425
+2047,"Polypill","Deaths",30728791.3197928
+2047,"Polypill w/ aspirin","Deaths",28926548.5690139
+2048,"Business as usual","Deaths",38480795.9827099
+2048,"Polypill","Deaths",31645827.3451405
+2048,"Polypill w/ aspirin","Deaths",29781719.7444071
+2049,"Business as usual","Deaths",39448649.8002974
+2049,"Polypill","Deaths",32586637.8252635
+2049,"Polypill w/ aspirin","Deaths",30664742.2054262
+2050,"Business as usual","Deaths",40408451.1141685
+2050,"Polypill","Deaths",33536147.7094236
+2050,"Polypill w/ aspirin","Deaths",31561100.5860014
+2017,"Business as usual","New cases",0
+2017,"Polypill","New cases",0
+2017,"Polypill w/ aspirin","New cases",0
+2018,"Business as usual","New cases",33115912.0323675
+2018,"Polypill","New cases",33115912.0323675
+2018,"Polypill w/ aspirin","New cases",33115912.0323675
+2019,"Business as usual","New cases",33555550.8501931
+2019,"Polypill","New cases",33555550.8501931
+2019,"Polypill w/ aspirin","New cases",33555550.8501931
+2020,"Business as usual","New cases",34069493.7133323
+2020,"Polypill","New cases",34069493.7133323
+2020,"Polypill w/ aspirin","New cases",34069493.7133323
+2021,"Business as usual","New cases",34659773.9686828
+2021,"Polypill","New cases",34659773.9686828
+2021,"Polypill w/ aspirin","New cases",34659773.9686828
+2022,"Business as usual","New cases",35340581.5137143
+2022,"Polypill","New cases",35340581.5137143
+2022,"Polypill w/ aspirin","New cases",35340581.5137143
+2023,"Business as usual","New cases",36151237.1581495
+2023,"Polypill","New cases",35774558.5677318
+2023,"Polypill w/ aspirin","New cases",35657905.3938436
+2024,"Business as usual","New cases",37018264.0083311
+2024,"Polypill","New cases",36253390.3236142
+2024,"Polypill w/ aspirin","New cases",36016124.1236649
+2025,"Business as usual","New cases",37940389.4719261
+2025,"Polypill","New cases",36774520.445962
+2025,"Polypill w/ aspirin","New cases",36411983.961643
+2026,"Business as usual","New cases",38916138.2121196
+2026,"Polypill","New cases",37333827.8141392
+2026,"Polypill w/ aspirin","New cases",36840422.6135484
+2027,"Business as usual","New cases",39949319.4680752
+2027,"Polypill","New cases",37934649.8965282
+2027,"Polypill w/ aspirin","New cases",37304413.0229925
+2028,"Business as usual","New cases",41051104.9103282
+2028,"Polypill","New cases",38587927.6155747
+2028,"Polypill w/ aspirin","New cases",37814681.7839097
+2029,"Business as usual","New cases",42200939.7103514
+2029,"Polypill","New cases",39273833.2894705
+2029,"Polypill w/ aspirin","New cases",38351437.9520487
+2030,"Business as usual","New cases",43411364.3108683
+2030,"Polypill","New cases",40006763.6715846
+2030,"Polypill w/ aspirin","New cases",38929334.9140654
+2031,"Business as usual","New cases",44638982.7153741
+2031,"Polypill","New cases",40743142.8773517
+2031,"Polypill w/ aspirin","New cases",39504492.5687551
+2032,"Business as usual","New cases",45895898.0367051
+2032,"Polypill","New cases",41498606.6240331
+2032,"Polypill w/ aspirin","New cases",40092846.0896018
+2033,"Business as usual","New cases",47169718.9947162
+2033,"Polypill","New cases",42262354.1520345
+2033,"Polypill w/ aspirin","New cases",40683229.8531568
+2034,"Business as usual","New cases",48456167.040115
+2034,"Polypill","New cases",43035599.7755711
+2034,"Polypill w/ aspirin","New cases",41274997.6359208
+2035,"Business as usual","New cases",49750318.5072368
+2035,"Polypill","New cases",43830397.2302207
+2035,"Polypill w/ aspirin","New cases",41878113.661835
+2036,"Business as usual","New cases",51034053.3213694
+2036,"Polypill","New cases",44615905.5634563
+2036,"Polypill w/ aspirin","New cases",42481216.4026544
+2037,"Business as usual","New cases",52289284.100829
+2037,"Polypill","New cases",45364714.1148627
+2037,"Polypill w/ aspirin","New cases",43042971.1760084
+2038,"Business as usual","New cases",53499429.828051
+2038,"Polypill","New cases",46083392.8617422
+2038,"Polypill w/ aspirin","New cases",43550907.0078977
+2039,"Business as usual","New cases",54649912.848632
+2039,"Polypill","New cases",46772522.3414379
+2039,"Polypill w/ aspirin","New cases",44025428.4506219
+2040,"Business as usual","New cases",55751957.6750717
+2040,"Polypill","New cases",47470362.2591983
+2040,"Polypill w/ aspirin","New cases",44490879.898124
+2041,"Business as usual","New cases",56835753.809219
+2041,"Polypill","New cases",48511201.7934156
+2041,"Polypill w/ aspirin","New cases",45246840.835287
+2042,"Business as usual","New cases",57928215.4453534
+2042,"Polypill","New cases",49743948.5664446
+2042,"Polypill w/ aspirin","New cases",46437715.3179337
+2043,"Business as usual","New cases",59039934.7713626
+2043,"Polypill","New cases",51014428.5263687
+2043,"Polypill w/ aspirin","New cases",47690518.9081415
+2044,"Business as usual","New cases",60212195.5815686
+2044,"Polypill","New cases",52352345.7773634
+2044,"Polypill w/ aspirin","New cases",49013626.7690872
+2045,"Business as usual","New cases",61438503.4092091
+2045,"Polypill","New cases",53758633.4005994
+2045,"Polypill w/ aspirin","New cases",50411167.8783583
+2046,"Business as usual","New cases",62694733.0295043
+2046,"Polypill","New cases",55216770.6309158
+2046,"Polypill w/ aspirin","New cases",51869428.8704122
+2047,"Business as usual","New cases",63931437.2159356
+2047,"Polypill","New cases",56671254.9044941
+2047,"Polypill w/ aspirin","New cases",53332255.65799
+2048,"Business as usual","New cases",65125875.5217566
+2048,"Polypill","New cases",58094983.1078722
+2048,"Polypill w/ aspirin","New cases",54771332.4112892
+2049,"Business as usual","New cases",66262029.7947659
+2049,"Polypill","New cases",59462552.7184151
+2049,"Polypill w/ aspirin","New cases",56158534.6662584
+2050,"Business as usual","New cases",67332420.5227077
+2050,"Polypill","New cases",60760651.568914
+2050,"Polypill w/ aspirin","New cases",57478239.0643245
