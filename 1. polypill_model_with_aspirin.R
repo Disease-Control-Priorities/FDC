@@ -5,107 +5,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
 #################################################################################################
-countrylist <- read.csv("data_80_80_80/super_regions.csv", stringsAsFactors=FALSE)%>%filter(location!="Global", 
-                                                                              location!="American Samoa",
-                                                                              location!="Andorra",
-                                                                              location!= "Bermuda",
-                                                                              location!= "Dominica",
-                                                                              location!="Greenland",
-                                                                              location!="Marshall Islands",
-                                                                              location!="Northern Mariana Islands",
-                                                                              location!="Palestine",
-                                                                              location!="Taiwan (Province of China)",
-                                                                              location!="Guam",
-                                                                              location!="Puerto Rico",
-                                                                              location!="South Sudan",
-                                                                              location!="Virgin Islands, U.S.")%>%pull(location)
-
-
-names<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-  select(location_gbd, gbd2019, iso3)%>%
-  rename(location = location_gbd)
-
-#add covid mx data
-load("data_80_80_80/wpp.adj.Rda")
-
-#Covid mx ~= excess mortality
-b_rates<-fread("data_80_80_80/base_rates_2022.csv")
-b_rates<-left_join(b_rates, wpp.adj%>%
-                     rename(location = location_name)%>%
-                     select( -Nx, -mx, -iso3))
-
-#add location-specific CFAARC estimates
-df<-read.csv("data_80_80_80/IHME-CFR.csv", stringsAsFactors = F)
-cfr<-df%>%select(-c(lower, upper, measure, age, metric))%>%
-  filter(cause!="All causes")%>%
-  spread(year, val)%>%
-  mutate(CFAARC = 1+log(`2019`/`2009`)/10)
-
-cfr$cause[cfr$cause == "Ischemic heart disease"]<-"ihd"
-cfr$cause[cfr$cause == "Hypertensive heart disease"]<-"hhd"
-cfr$cause[cfr$cause == "Ischemic stroke"]<-"istroke"
-cfr$cause[cfr$cause == "Intracerebral hemorrhage"]<-"hstroke"
-
-cfr<-left_join(cfr%>%rename(gbd2019 = location), names)%>%
-  filter(location %in% countrylist)%>%
-  select(-c(gbd2019, iso3, `2019`, `2009`))
-
-##add reduction in bg.mx over time
-all<-df%>%select(-c(lower, upper, measure, age, metric))%>%
-  filter(cause=="All causes")%>%
-  spread(year, val)%>%
-  mutate(BGAARC = 1+log(`2019`/`2009`)/10)
-
-all<-left_join(all%>%rename(gbd2019 = location), names)%>%
-  filter(location %in% countrylist)%>%
-  select(-c(gbd2019, iso3, `2019`, `2009`, cause))
-
-b_rates<-left_join(b_rates, all)%>%select(-c(CFAARC))
-b_rates<-left_join(b_rates, cfr)
-
-#adjust rates
-#b_rates[year>=2020, CF :=CF*(CFAARC^(year-2019))]
-b_rates[year>=2020, BG.mx :=BG.mx*(BGAARC^(year-2019))]
-b_rates[year>=2020, BG.mx.all :=BG.mx.all*(BGAARC^(year-2019))]
-
-#add age-20 cohort projections from demographic model
-pop20<-read.csv("data_80_80_80/PopulationsAge20_2050.csv", stringsAsFactors = F)
-
-b_rates<-left_join(b_rates, pop20%>%rename(Nx2=Nx, year=year_id)%>%filter(year>=2017), 
-                   by=c("location", "year", "sex", "age"))%>%
-  mutate(Nx = ifelse(is.na(Nx2), Nx, Nx2), pop=ifelse(is.na(Nx2), pop, Nx2))%>%
-  select(-c(Nx2))
-
-#check rates
-b_rates[is.na(covid.mx), covid.mx:=0]
-b_rates[covid.mx>=1, covid.mx:=0.9]
-
-#rebalance TPs w/ covid such that they sum to less than 1
-#especially @ old ages where covid deaths are high
-b_rates[,check_well := BG.mx+covid.mx+IR]
-b_rates[,check_sick := BG.mx+covid.mx+CF]
-
-#first ensure that background mortality + covid <1
-b_rates[check_well>1 | check_sick>1, covid.mx:=ifelse(1-BG.mx<covid.mx, 1-BG.mx, covid.mx)]
-#then proportionally reduce rates by check_well
-b_rates[check_well>1, covid.mx:= covid.mx - covid.mx*(check_well-1)/(covid.mx+BG.mx+IR)]
-b_rates[check_well>1, BG.mx   := BG.mx    - BG.mx*   (check_well-1)/(covid.mx+BG.mx+IR)]
-b_rates[check_well>1, IR      := IR       - IR*      (check_well-1)/(covid.mx+BG.mx+IR)]
-
-b_rates[,check_well := BG.mx+covid.mx+IR]
-b_rates[check_well>1]
-
-#same process for check_sick
-b_rates[check_sick>1, covid.mx:= covid.mx - covid.mx*(check_sick-1)/(covid.mx+BG.mx+CF)]
-b_rates[check_sick>1, BG.mx   := BG.mx    - BG.mx*   (check_sick-1)/(covid.mx+BG.mx+CF)]
-b_rates[check_sick>1, CF      := CF       - CF*      (check_sick-1)/(covid.mx+BG.mx+CF)]
-
-b_rates[,check_sick := BG.mx+covid.mx+CF]
-b_rates[check_sick>1]
-
-#check that no BG.mx.all+covid>1
-b_rates[covid.mx+BG.mx.all>1]
-b_rates[, newcases:=0]
+load("base_rates.Rda")
 
 ##coverage and effects
 inc<-read.csv("scale-up_withaspirin.csv", stringsAsFactors = F)
@@ -139,7 +39,7 @@ b_rates<-b_rates%>%select(-IRadjust, -CFadjust, -pp.cov.inc, -sp.cov.inc,
                           -pp_cov, -sp_cov, -PP_eff, -SP_eff,
                           -PP, -SP)
 
-ggplot(b_rates%>%filter(year==2030, sex=="Female", cause=="ihd", location=="China"), 
+ggplot(b_rates%>%filter(year==2030, sex=="Female", cause=="ihd", location=="India"), 
        aes(x=age, y=CF, color=intervention))+
   geom_line(size=0.8)
 
@@ -270,56 +170,91 @@ drops <- c("all", "b_rates", "cfr", "df", "inc", "names", "p", "project.all",
            "pop20", "test", "wpp.adj", "time1", "time2", "i", "countrylist")
 rm(list = c(drops,"drops"))
 
-save.image(file = "output_aspirin.Rda")
-#load("output_aspirin.Rda")
+save.image(file = "output_aspirin2.Rda")
+load("output_aspirin2.Rda")
 
 #######################################################################
 #Tables and figures
 #######################################################################
 
-unique(output2%>%filter(is.na(intervention))%>%pull(location))
+pop<-output2%>%filter(year==2019, intervention=="Baseline")%>%
+  group_by(location)%>%summarise(Nx = sum(pop, na.rm = T))
+
+inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+  select(wb_region, location_wb, location_gbd)%>%
+  rename(location = location_gbd)%>%
+  right_join(., read.csv("cvd_events2.csv", stringsAsFactors = F))%>%
+  filter(CV.death!=0)%>%
+  mutate(MI_ratio = MI/CV.death,
+         stroke_ratio = Stroke/CV.death,
+         HF_ratio = Heart.Failure/CV.death)%>%
+  left_join(., pop)%>%
+  na.omit()%>%
+  group_by(wb_region)%>%
+  summarise(MI_ratio = weighted.mean(MI_ratio, Nx),
+            stroke_ratio = weighted.mean(stroke_ratio, Nx),
+            HF_ratio = weighted.mean(HF_ratio, Nx))%>%
+  right_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+               select(wb_region, location_gbd)%>%
+               rename(location = location_gbd))%>%
+  select(-wb_region)
 
 table1<-output2%>%
   filter(cause!="hhd")%>%
-  group_by(intervention,year)%>%
+  left_join(., inc_adjust)%>%
+  mutate(MI = dead*MI_ratio,
+         stroke = dead*stroke_ratio,
+         HF = dead*HF_ratio,
+         newcases = MI + stroke + HF)%>%
+  group_by(intervention, year)%>%
   summarise(Incidence = sum(newcases),
             Prevalence = sum(sick),
-            CVD_deaths=sum(dead),
+            CVD_deaths = sum(dead),
             All_deaths = sum(all.mx)/3)%>%
   filter(year==2020 & intervention=="Baseline" | year==2050)
 
-write.csv(table1, "outputs/Table2_aspirin.csv")
+write.csv(table1, "outputs/Table2_aspirin_new.csv")
 
 table1_b<-output2%>%
   filter(cause!="hhd", year==2050)%>%
+  left_join(., inc_adjust)%>%
+  mutate(MI = dead*MI_ratio,
+         stroke = dead*stroke_ratio,
+         HF = dead*HF_ratio,
+         newcases = MI + stroke + HF)%>%
   group_by(intervention)%>%
   summarise(Incidence = sum(newcases),
             Prevalence = sum(sick),
             CVD_deaths = sum(dead))
 
-write.csv(table1_b, "outputs/Table2_b_aspirin.csv")
+write.csv(table1_b, "outputs/Table2_b_aspirin_new.csv")
 
 table2<-output2%>%
   filter(cause!="hhd")%>%
+  left_join(., inc_adjust)%>%
+  mutate(MI = dead*MI_ratio,
+         stroke = dead*stroke_ratio,
+         HF = dead*HF_ratio,
+         newcases = MI + stroke + HF)%>%
   group_by(intervention)%>%
-  summarise(Deaths.averted=sum(dead),
-            Cases.averted=sum(newcases))%>%
+  summarise(Deaths.averted = sum(dead),
+            Cases.averted = sum(newcases))%>%
   gather(metric, value, -intervention)%>%
-  spread(intervention,value)%>%
+  spread(intervention, value)%>%
   mutate(`Scenario 1` = signif((Baseline- `Scenario 1`), 2),
          `Scenario 2` = signif((Baseline- `Scenario 2`), 2),
          `Scenario 3` = signif((Baseline- `Scenario 3`), 2),
          `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
   select(-Baseline)
 
-write.csv(table2, "outputs/cumulative_resuts_aspirin.csv")
+write.csv(table2, "outputs/cumulative_resuts_aspirin_new.csv")
 
 table3<-output2%>%
   filter(cause!="hhd")%>%
   group_by(intervention)%>%
   summarise(All.cause.deaths = sum(all.mx)/3)
 
-write.csv(table3, "outputs/allcauseMX_aspirin.csv")
+write.csv(table3, "outputs/allcauseMX_aspirin_new.csv")
 
 #############################
 #Calculate 50q30
@@ -374,14 +309,22 @@ ggplot(WB_50q30, aes(x=year, y=x50q30, color=wb2021))+
 
 ggsave("outputs/Figure1_aspirin.jpeg", height=4, width=9)
 
-write.csv(WB_50q30, "outputs/plot_data/Fig1_data_aspririn.csv")
+write.csv(WB_50q30, "outputs/plot_data/Fig1_data_aspririn.csv", row.names = F)
 
 ##################figure 2
 plot2<-output2%>%
   filter(cause!="hhd")%>%
+  left_join(., inc_adjust)%>%
+  mutate(MI = dead*MI_ratio,
+         stroke = dead*stroke_ratio,
+         HF = dead*HF_ratio,
+         newcases = MI + stroke + HF)%>%
   group_by(year, intervention)%>%
   summarise(`Cumulative deaths averted`=sum(dead),
-            `Cumulative cases averted` = sum(newcases))%>%
+            `Cumulative cases averted` = sum(newcases),
+            `MI averted` = sum(MI),
+            `Stroke averted` = sum(stroke),
+            `Heart failure averted` = sum(HF))%>%
   gather(metric, value, -intervention, -year)%>%
   spread(intervention, value)%>%
   mutate(`Scenario 1` = Baseline - `Scenario 1`,
@@ -404,7 +347,7 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 #subtract values so makes sense
 #make nicer colors
 
-plot2%>%
+plot<-plot2%>%
   spread(Intervention, value)%>%
   group_by(year)%>%
   mutate(`Scenario 2` = `Scenario 2` - `Scenario 1`,
@@ -412,8 +355,10 @@ plot2%>%
          `Scenario 4` = `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`)%>%
   gather(Intervention, value, -year, -metric)%>%
   mutate(Intervention = factor(Intervention, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))%>%
-  arrange(desc(Intervention))%>%
-  ggplot(aes(x=year, y=value/1e6))+
+  arrange(desc(Intervention))
+
+ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted")), 
+       aes(x=year, y=value/1e6))+
   geom_area(aes(fill=Intervention), position = 'stack', alpha=0.6 , size=.5, colour="white") +
   facet_wrap(~metric, nrow=1)+
   theme_bw()+
@@ -422,6 +367,8 @@ plot2%>%
   ylab("Cumulative cases/deaths averted (millions)")+
   scale_fill_viridis(discrete = T) 
 
-ggsave("outputs/Figure2_area_aspirin.jpeg", height=4, width=9)
+#ggsave("outputs/Figure2_area_aspirin_new.jpeg", height=4, width=9)
+
+write.csv(plot, "outputs/plot_data/Fig2_data_aspririn.csv", row.names = F)
 
 

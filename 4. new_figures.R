@@ -2,10 +2,102 @@ rm(list=ls())
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
-load("output.Rda")
-load("output_aspirin.Rda")
+########
+
+#combine plots
+
+plot<-read.csv("outputs/plot_data/Fig2_data_aspririn.csv", stringsAsFactors = F)%>%
+  mutate(Scenario = "FDC with aspirin")
+plot2<-read.csv("outputs/plot_data/Fig2_data.csv", stringsAsFactors = F)%>%
+  mutate(Scenario = "FDC without aspirin")
+
+fig1<-bind_rows(plot, plot2)%>%
+  mutate(metric = ifelse(metric=="Cumulative cases averted", "Cumulative events averted", metric),
+         Intervention = factor(Intervention, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))
+
+library(viridis)
+ggplot(fig1%>%filter(metric %in% c("Cumulative events averted", "Cumulative deaths averted")), 
+       aes(x=year, y=value/1e6))+
+  geom_area(aes(fill=Intervention), position = 'stack', alpha=0.7 , size=.5, colour="white") +
+  facet_grid(metric~Scenario, scales = "free_y")+
+  theme_bw()+
+  xlim(2023,2050)+
+  xlab("Year")+
+  ylab("Cumulative CVD events/deaths averted (millions)")+
+  scale_fill_viridis(discrete = T) 
+
+ggsave("outputs/new_Figue1.jpeg", height=6, width=8)
+
+
+ggplot(fig1%>%filter(metric %in% c("Cumulative events averted", "Cumulative deaths averted")), 
+       aes(x=year, y=value/1e6))+
+  geom_area(aes(fill=Intervention), position = 'stack', alpha=0.7 , size=.5, colour="white") +
+  facet_grid(metric~Scenario)+
+  theme_bw()+
+  xlim(2023,2050)+
+  xlab("Year")+
+  ylab("Cumulative CVD events/deaths averted (millions)")+
+  scale_fill_viridis(discrete = T) 
+
+ggsave("outputs/new_Figue1_same_scale.jpeg", height=6, width=8)
+
+ggplot(fig1%>%filter(metric %in% c("MI averted", "Stroke averted", "Heart failure averted")), 
+       aes(x=year, y=value/1e6))+
+  geom_area(aes(fill=Intervention), position = 'stack', alpha=0.7 , size=.5, colour="white") +
+  facet_grid(metric~Scenario)+
+  theme_bw()+
+  xlim(2023,2050)+
+  xlab("Year")+
+  ylab("Cumulative CVD events averted (millions)")+
+  scale_fill_viridis(discrete = T) 
+
+ggsave("outputs/new_Figue1_events.jpeg", height=6, width=8)
+
+ggplot(fig1%>%filter(metric %in% c("Cumulative deaths averted")), 
+       aes(x=year, y=value/1e6))+
+  geom_area(aes(fill=Intervention), position = 'stack', alpha=0.7 , size=.5, colour="white") +
+  facet_wrap(~Scenario)+
+  theme_bw()+
+  xlim(2023,2050)+
+  xlab("Year")+
+  ylab("Cumulative deaths averted (millions)")+
+  scale_fill_viridis(discrete = T) 
+
+ggsave("outputs/new_Figue1_deaths.jpeg", height=4, width=8)
+
+###
+
+plot<-read.csv("outputs/plot_data/Fig1_data.csv", stringsAsFactors = F)%>%
+  mutate(Scenario = "FDC without aspirin")
+plot2<-read.csv("outputs/plot_data/Fig1_data_aspririn.csv", stringsAsFactors = F)%>%
+  mutate(Scenario = "FDC with aspirin")
+
+fig2<-bind_rows(plot, plot2)
+fig2$wb2021<-factor(fig2$wb2021, levels=c("LIC", "LMIC", "UMIC", "HIC"))
+fig2<-fig2%>%mutate(intervention = ifelse(intervention=="Business as usual" ,"Current care", intervention))
+
+ggplot(fig2, aes(x=year, y=x50q30, color=wb2021, linetype=Scenario))+
+  #geom_line()+
+  geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
+  facet_wrap(~intervention, nrow=1)+
+  labs(color="Country Income Group")+
+  xlim(2020,2050)+
+  ylim(0,0.33)+
+  ylab("50q30")+
+  xlab("Year")+
+  theme_bw()+
+  scale_linetype_manual(values=c("twodash", "solid"))+
+  theme(axis.text.x = element_text(angle=45))+
+  scale_color_viridis(discrete = T) 
+
+ggsave("outputs/new_Figure2.jpeg", height=5, width=9)
 
 #########
+#old
+#########
+
+load("output2.Rda")
+load("output_aspirin2.Rda")
 
 plot<-bind_rows(output%>%
                   filter(intervention== "Scenario 4", cause!="hhd")%>%
@@ -96,7 +188,6 @@ rm(progress)
 
 ## Cumulative deaths averted
 
-
 plot4<-bind_rows(output, output4)%>%
   group_by(intervention)%>%
   arrange(year)%>%
@@ -149,107 +240,7 @@ plot5b<-read.csv("outputs/plot_data/Fig1_data_aspririn.csv", stringsAsFactors = 
 write.csv(plot5b, "outputs/world_50q30_aspirin.csv")
 
 ### Appendix figure (new) ###
-countrylist <- read.csv("data_80_80_80/super_regions.csv", stringsAsFactors=FALSE)%>%filter(location!="Global", 
-                                                                                            location!="American Samoa",
-                                                                                            location!="Andorra",
-                                                                                            location!= "Bermuda",
-                                                                                            location!= "Dominica",
-                                                                                            location!="Greenland",
-                                                                                            location!="Marshall Islands",
-                                                                                            location!="Northern Mariana Islands",
-                                                                                            location!="Palestine",
-                                                                                            location!="Taiwan (Province of China)",
-                                                                                            location!="Guam",
-                                                                                            location!="Puerto Rico",
-                                                                                            location!="South Sudan",
-                                                                                            location!="Virgin Islands, U.S.")%>%pull(location)
-
-
-names<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-  select(location_gbd, gbd2019, iso3)%>%
-  rename(location = location_gbd)
-
-#add covid mx data
-load("data_80_80_80/wpp.adj.Rda")
-
-#Covid mx ~= excess mortality
-b_rates<-fread("data_80_80_80/base_rates_2022.csv")
-b_rates<-left_join(b_rates, wpp.adj%>%
-                     rename(location = location_name)%>%
-                     select( -Nx, -mx, -iso3))
-
-#add location-specific CFAARC estimates
-df<-read.csv("data_80_80_80/IHME-CFR.csv", stringsAsFactors = F)
-cfr<-df%>%select(-c(lower, upper, measure, age, metric))%>%
-  filter(cause!="All causes")%>%
-  spread(year, val)%>%
-  mutate(CFAARC = 1+log(`2019`/`2009`)/10)
-
-cfr$cause[cfr$cause == "Ischemic heart disease"]<-"ihd"
-cfr$cause[cfr$cause == "Hypertensive heart disease"]<-"hhd"
-cfr$cause[cfr$cause == "Ischemic stroke"]<-"istroke"
-cfr$cause[cfr$cause == "Intracerebral hemorrhage"]<-"hstroke"
-
-cfr<-left_join(cfr%>%rename(gbd2019 = location), names)%>%
-  filter(location %in% countrylist)%>%
-  select(-c(gbd2019, iso3, `2019`, `2009`))
-
-##add reduction in bg.mx over time
-all<-df%>%select(-c(lower, upper, measure, age, metric))%>%
-  filter(cause=="All causes")%>%
-  spread(year, val)%>%
-  mutate(BGAARC = 1+log(`2019`/`2009`)/10)
-
-all<-left_join(all%>%rename(gbd2019 = location), names)%>%
-  filter(location %in% countrylist)%>%
-  select(-c(gbd2019, iso3, `2019`, `2009`, cause))
-
-b_rates<-left_join(b_rates, all)%>%select(-c(CFAARC))
-b_rates<-left_join(b_rates, cfr)
-
-#adjust rates
-#b_rates[year>=2020, CF :=CF*(CFAARC^(year-2019))]
-b_rates[year>=2020, BG.mx :=BG.mx*(BGAARC^(year-2019))]
-b_rates[year>=2020, BG.mx.all :=BG.mx.all*(BGAARC^(year-2019))]
-
-#add age-20 cohort projections from demographic model
-pop20<-read.csv("data_80_80_80/PopulationsAge20_2050.csv", stringsAsFactors = F)
-
-b_rates<-left_join(b_rates, pop20%>%rename(Nx2=Nx, year=year_id)%>%filter(year>=2017), 
-                   by=c("location", "year", "sex", "age"))%>%
-  mutate(Nx = ifelse(is.na(Nx2), Nx, Nx2), pop=ifelse(is.na(Nx2), pop, Nx2))%>%
-  select(-c(Nx2))
-
-#check rates
-b_rates[is.na(covid.mx), covid.mx:=0]
-b_rates[covid.mx>=1, covid.mx:=0.9]
-
-#rebalance TPs w/ covid such that they sum to less than 1
-#especially @ old ages where covid deaths are high
-b_rates[,check_well := BG.mx+covid.mx+IR]
-b_rates[,check_sick := BG.mx+covid.mx+CF]
-
-#first ensure that background mortality + covid <1
-b_rates[check_well>1 | check_sick>1, covid.mx:=ifelse(1-BG.mx<covid.mx, 1-BG.mx, covid.mx)]
-#then proportionally reduce rates by check_well
-b_rates[check_well>1, covid.mx:= covid.mx - covid.mx*(check_well-1)/(covid.mx+BG.mx+IR)]
-b_rates[check_well>1, BG.mx   := BG.mx    - BG.mx*   (check_well-1)/(covid.mx+BG.mx+IR)]
-b_rates[check_well>1, IR      := IR       - IR*      (check_well-1)/(covid.mx+BG.mx+IR)]
-
-b_rates[,check_well := BG.mx+covid.mx+IR]
-b_rates[check_well>1]
-
-#same process for check_sick
-b_rates[check_sick>1, covid.mx:= covid.mx - covid.mx*(check_sick-1)/(covid.mx+BG.mx+CF)]
-b_rates[check_sick>1, BG.mx   := BG.mx    - BG.mx*   (check_sick-1)/(covid.mx+BG.mx+CF)]
-b_rates[check_sick>1, CF      := CF       - CF*      (check_sick-1)/(covid.mx+BG.mx+CF)]
-
-b_rates[,check_sick := BG.mx+covid.mx+CF]
-b_rates[check_sick>1]
-
-#check that no BG.mx.all+covid>1
-b_rates[covid.mx+BG.mx.all>1]
-b_rates[, newcases:=0]
+load("base_rates.Rda")
 
 ##coverage and effects
 inc<-read.csv("scale-up_withaspirin.csv", stringsAsFactors = F)
@@ -287,9 +278,6 @@ ggplot(b_rates%>%filter(year==2030, sex=="Female", cause=="ihd", location=="Chin
        aes(x=age, y=CF, color=intervention))+
   geom_line(size=0.8)
 
-
-
-
 Country<-"India"
 
   intervention_rates<-b_rates[location==Country]%>%
@@ -307,26 +295,31 @@ Country<-"India"
   }
   
   
+intervention_rates<-intervention_rates%>%
+  mutate(intervention = ifelse(intervention=="Baseline", "Current care", intervention))
   
 ggplot(intervention_rates%>%filter(year%in%c(2020,2035,2050), sex=="Female", cause=="ihd"), 
-       aes(x=age, y=CF*1e5, color=intervention))+
+       aes(x=age, y=CF, color=intervention))+
   geom_line(size=0.8)+
   facet_wrap(~year)+
-  ylab("Case fatality rate (per 100,000)")+
+  ylab("Transition probability \n(IHD to death)")+
   xlab("Age")+
   theme_bw()+ 
-  scale_y_sqrt()
+  scale_y_sqrt()+
+  labs(color = "Intervention")
   
 ggsave("outputs/CF_plot_India.jpeg", height=6, width=8)
   
   ggplot(intervention_rates%>%filter(year%in%c(2020,2035,2050), sex=="Female", cause=="ihd"), 
-         aes(x=age, y=IR*1e5, color=intervention))+
+         aes(x=age, y=IR, color=intervention))+
     geom_line(size=0.8)+
     facet_wrap(~year)+
-    ylab("Incidence rate (per 100,000)")+
+    ylab("Transition probablity \n(Well to IHD)")+
     xlab("Age")+
-    theme_bw()+ scale_y_sqrt()
+    theme_bw()+ scale_y_sqrt()+
+    labs(color = "Intervention")
   
 ggsave("outputs/IR_plot_India.jpeg", height=6, width=8)
+
 
   

@@ -695,7 +695,7 @@ targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scen
                          ifelse(cause=="istroke", 1-0.51,0)),
          cov_inc = ifelse(intervention == "Baseline", 0,
                           ifelse(intervention=="Scenario 4", 0.045,
-                                 ifelse(intervention=="Scenario 3", 0.045, 
+                                 ifelse(intervention=="Scenario 3", 0.025, 
                                         ifelse(intervention=="Scenario 2", 0.015, 0.015))))
   )
 
