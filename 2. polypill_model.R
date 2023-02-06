@@ -5,7 +5,17 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
 #################################################################################################
-load("base_rates.Rda")
+load("not_on_github/base_rates.Rda") #data too large for github
+
+#update with wpp2021 estimates for incoming 20-year old cohorts
+load("data_NCDC/wpp_age_20.Rda")
+
+b_rates<-b_rates%>%
+  mutate(iso3 = countrycode::countrycode(location, "country.name", "iso3c"))%>%
+  left_join(., wpp_20%>%select(iso3, year, sex, Population))%>%
+  mutate(Nx = ifelse(age==20, Population, Nx),
+         pop = ifelse(age==20, Population, pop))%>%
+  select(-Population, -iso3)
 
 ##coverage and effects
 inc<-read.csv("scale-up.csv", stringsAsFactors = F)%>%
@@ -22,6 +32,7 @@ reg<-b_rates%>%
   mutate(ir_slope = map(data, ~coef(lm(IR~age, data=.x))[["age"]]),
          cf_slope = map(data, ~coef(lm(CF~age, data=.x))[["age"]]))%>%
   select(-data)#takes 1-2 minutes
+#warnings ok
 
 reg$ir_slope<-unlist(reg$ir_slope)
 reg$cf_slope<-unlist(reg$cf_slope)
@@ -127,20 +138,30 @@ project.all <- function(Country){
 }#as a fxn
 
 #test
-test<-project.all("India")
+test<-project.all("India")%>%
+  bind_rows(., project.all("China"))%>%
+  bind_rows(., project.all("Ethiopia")) %>%
+  bind_rows(., project.all("United States"))  
 
 any(is.na(test))
 
-p<-test%>%group_by(year, intervention)%>%
+p<-test%>%group_by(year, intervention, location)%>%
   summarise(dead = sum(dead),
-            sick=sum(sick))
+            sick=sum(sick),
+            pop = sum(pop))
 
 #inspect
 ggplot(p, aes(x=year, y=dead, color=intervention))+
-  geom_point()
+  geom_point()+
+  facet_wrap(~location, scales = "free")
+
+#ggsave("test_fatal.jpeg", height = 6, width = 8)
 
 ggplot(p, aes(x=year, y=sick, color=intervention))+
-  geom_point()
+  geom_point()+
+  facet_wrap(~location, scales="free")
+
+#ggsave("test_nonfatal.jpeg", height = 6, width = 8)
 
 #####################################################################
 #loop
@@ -159,10 +180,10 @@ drops <- c("all", "b_rates", "cfr", "df", "inc", "names", "p", "project.all",
            "pop20", "test", "wpp.adj", "time1", "time2", "i", "countrylist")
 rm(list = c(drops,"drops"))
 
-save.image(file = "output2.Rda")
+save.image(file = "not_on_github/output2.Rda")
 
-load("output2.Rda")
-load("output_aspirin2.Rda")
+load("not_on_github/output2.Rda")
+load("not_on_github/output_aspirin2.Rda")
 
 output<-bind_rows(output, output2%>%filter(intervention=="Baseline"))
 
@@ -177,7 +198,7 @@ rm(output2)
 inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
   select(wb_region, location_wb, location_gbd)%>%
   rename(location = location_gbd)%>%
-  right_join(., read.csv("cvd_events2.csv", stringsAsFactors = F))%>%
+  right_join(., read.csv("not_on_github/cvd_events2.csv", stringsAsFactors = F))%>%
   filter(CV.death!=0)%>%
   mutate(MI_ratio = MI/CV.death,
          stroke_ratio = Stroke/CV.death,
@@ -238,7 +259,9 @@ table2<-output%>%
   mutate(`Scenario 1` = signif((Baseline- `Scenario 1`), 2),
          `Scenario 2` = signif((Baseline- `Scenario 2`), 2),
          `Scenario 3` = signif((Baseline- `Scenario 3`), 2),
-         `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
+         `Scenario 4` = signif((Baseline- `Scenario 4`), 2),
+         `Scenario 5` = signif((Baseline- `Scenario 5`), 2),
+         `Alt Scenario 1` = signif((Baseline- `Alt Scenario 1`), 2))%>%
   select(-Baseline)
 
 write.csv(table2, "outputs/cumulative_resuts_new.csv")
@@ -286,10 +309,42 @@ WB_50q30$wb2021<-factor(WB_50q30$wb2021, levels=c("LIC", "LMIC", "UMIC", "HIC"))
 
 library(viridis)
 
+#all countries by scenario
+all_50q30<-CVD%>%group_by(age.group, year, intervention)%>%
+  summarise(pop=sum(pop), dead=sum(dead))
+all_50q30$mx<-all_50q30$dead/all_50q30$pop
+any(is.na(all_50q30))
+
+all_50q30<-all_50q30%>%group_by(year, intervention)%>%
+  summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
+
+all_50q30<-all_50q30%>%mutate(intervention = ifelse(intervention=="Baseline", "Business as usual", intervention))
+
+all_50q30<-all_50q30%>%
+  filter(intervention%in%c("Business as usual", "Alt Scenario 1", "Scenario 4", "Scenario 5"))%>%
+  mutate(intervention = factor(intervention, levels = c("Business as usual", "Alt Scenario 1", "Scenario 4", "Scenario 5")))
+
+ggplot(all_50q30, 
+       aes(x=year, y=x50q30, color=intervention))+
+  geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
+  labs(color="Scenario")+
+  xlim(2020,2050)+
+  ylim(0,0.25)+
+  ylab("50q30")+
+  xlab("Year")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle=45))+
+  scale_color_viridis(discrete = T) 
+
+ggsave("outputs/alt_Figure1_appendix.jpeg", height=4, width=6)
+
+write.csv(all_50q30, "outputs/plot_data/appendix_50q30.csv")
+
+
 #WB_50q30<-read.csv("outputs/plot_data/Fig1_data.csv", stringsAsFactors = F)
 WB_50q30<-WB_50q30%>%mutate(intervention = ifelse(intervention=="Baseline", "Business as usual", intervention))
 
-ggplot(WB_50q30, aes(x=year, y=x50q30, color=wb2021))+
+ggplot(WB_50q30%>%filter(intervention!="Scenario 5", intervention!="Alt Scenario 1"), aes(x=year, y=x50q30, color=wb2021))+
   geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
   facet_wrap(~intervention, nrow=1)+
   labs(color="Country Income Group")+
@@ -305,8 +360,9 @@ ggsave("outputs/Figure1_new.jpeg", height=4, width=9)
 
 write.csv(WB_50q30, "outputs/plot_data/Fig1_data.csv", row.names=F)
 
+
 ##################figure 2
-plot2<-output%>%
+plot2<-output%>%filter(intervention!="Alt Scenario 1")%>%
   filter(cause!="hhd")%>%
   left_join(., inc_adjust)%>%
   mutate(MI = dead*MI_ratio,
@@ -324,14 +380,16 @@ plot2<-output%>%
   mutate(`Scenario 1` = Baseline - `Scenario 1`,
          `Scenario 2` = Baseline - `Scenario 2`,
          `Scenario 3` = Baseline - `Scenario 3`,
-         `Scenario 4` = Baseline - `Scenario 4`)%>%
+         `Scenario 4` = Baseline - `Scenario 4`,
+         `Scenario 5` = Baseline - `Scenario 5`)%>%
   select(-Baseline)%>%
   arrange(metric, year)%>%
   group_by(metric)%>%
   mutate(`Scenario 1` = cumsum(`Scenario 1`),
          `Scenario 2` = cumsum(`Scenario 2`),
          `Scenario 3` = cumsum(`Scenario 3`),
-         `Scenario 4` = cumsum(`Scenario 4`))%>%
+         `Scenario 4` = cumsum(`Scenario 4`),
+         `Scenario 5` = cumsum(`Scenario 5`))%>%
   gather(Intervention, value, -year, -metric)
 
 
@@ -346,12 +404,13 @@ plot<-plot2%>%
   group_by(year)%>%
   mutate(`Scenario 2` = `Scenario 2` - `Scenario 1`,
          `Scenario 3` = `Scenario 3` - `Scenario 2` - `Scenario 1`,
-         `Scenario 4` = `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`)%>%
+         `Scenario 4` = `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`,
+         `Scenario 5` = `Scenario 5` - `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`)%>%
   gather(Intervention, value, -year, -metric)%>%
-  mutate(Intervention = factor(Intervention, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))%>%
+  mutate(Intervention = factor(Intervention, levels=c("Scenario 5", "Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))%>%
   arrange(desc(Intervention))
 
-ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted")), 
+ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted"), Intervention!="Scenario 5"), 
        aes(x=year, y=value/1e6))+
   geom_area(aes(fill=Intervention), position = 'stack', alpha=0.6 , size=.5, colour="white") +
   facet_wrap(~metric, nrow=1)+
@@ -363,3 +422,13 @@ ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative death
 
 #ggsave("outputs/Figure2_area_new.jpeg", height=4, width=9)
 write.csv(plot, "outputs/plot_data/Fig2_data.csv", row.names = F)
+
+ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted")), 
+       aes(x=year, y=value/1e6))+
+  geom_area(aes(fill=Intervention), position = 'stack', alpha=0.6 , size=.5, colour="white") +
+  facet_wrap(~metric, nrow=1)+
+  theme_bw()+
+  xlim(2023,2050)+
+  xlab("Year")+
+  ylab("Cumulative cases/deaths averted (millions)")+
+  scale_fill_viridis(discrete = T) 

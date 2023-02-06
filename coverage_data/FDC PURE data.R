@@ -27,6 +27,8 @@ pacman::p_load(dplyr, tidyr, ggplot2, boot)
 locs<-read.csv("Country_groupings_extended.csv", stringsAsFactors = F)%>%
   select(gbd2019, iso3, wb2021, location_gbd, location_ncdrisc)%>%rename(location_name = gbd2019)
 
+#Can skip to 475 if just adjusting coverage targets
+
 ##################################################
 #GBD Covariates 
 
@@ -138,7 +140,7 @@ summary(m5_sta)
 m6_sta <- lm(logit(pr_sta_pp) ~ log(ldi_pc) + logit(pr_trt), weights = Sample.Size, data = oth)
 summary(m6_sta) # probably the best we can do
 m7_sta <- lm(logit(pr_sta_pp) ~ log(ldi_pc) + logit(pr_trt) + year, weights = Sample.Size, data = oth)
-summary(m7_sta) #SJP: adding year doesn't seem to help, but I haven't tinkered much with it.
+summary(m7_sta) #SJP: adding year doesn't seem to help
 
 # example prediction:
 ex <- predict(m6_sta, newdata = data.frame(ldi_pc = 10000, pr_trt = 0.5))
@@ -433,8 +435,6 @@ cascade <- read.csv("NCD-RisC_Lancet_2021_Hypertension_crude_countries.csv", str
 #are on at least one indicated medication, giving two additional measures, r_IHD and  r_stroke.)
 
 #Use estimation from https://www-sciencedirect-com.offcampus.lib.washington.edu/science/article/pii/S0140673611612154
-#Figure 2
-
 sp_cascade<-data.frame(wb2021=c("HIC", "UMIC", "LMIC", "LIC"),
                        r_IHD = c(50/88, 15/55, 5/30, 5/20),
                        r_stroke = c(35/80, 15/48, 5/54, 1/82))%>%
@@ -468,21 +468,28 @@ ggplot(plot, aes(x=ldi_pc, y=sp_cov, color=wb2021))+
   
 ggsave("SP_coverage.jpeg", height=4, width=8)
 
-write.csv(baseline.coverage%>%select(location_name, iso3, pp_cov, sp_cov), 
+write.csv(baseline.coverage%>%select(location_name, iso3, pp_cov, sp_cov, cause), 
           "coverage.csv", row.names = F)
 
+
+######################################
 #Scenarios targets
+######################################
 
 #Scenario 1 PP: Already on treatment but not optimized (step-up or substitution therapy)
 #Scenario 1 SP: Already on some but not all medications (step-up or substitution therapy)
 #Scenario 2 PP: Aware of high CVD risk but not on any treatment (initiation of therapy)
-#Scenario 2 SP: 70% (aware assumption)
-#Scenarios 3+4: 80%
+#Scenario 2 SP: 66.7% 
+#Scenario 3: 66.7%
+#Scenario 4: 80%
+#Scenario 5 (appendix): 80%
 
 #baseline rate of increase
 b_inc<-read.csv("baseline_increase.csv", stringsAsFactors = F)%>%
   left_join(., locs)%>%
-  select(location_name, base_inc)
+  select(location_name, base_inc)%>%
+  na.omit()%>%
+  mutate(base_inc = ifelse(base_inc<0,0, base_inc))
 
 #on 1-2 drugs medication
 sp_treated<-data.frame(wb2021=c("HIC", "UMIC", "LMIC", "LIC"),
@@ -495,7 +502,7 @@ sp_treated<-data.frame(wb2021=c("HIC", "UMIC", "LMIC", "LIC"),
 prop.cov<-left_join(cascade%>%merge(., data.frame(cause=c("ihd", "hhd", "istroke", "hstroke"))), sp_treated)%>%
   select(location_name, iso3, cause, pr_ddx, pr_trt, pr_trt_SP)
 
-targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4"),
+targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4", "Scenario 5", "Alt Scenario 1"),
                y = c("ihd", "hhd", "istroke", "hstroke"))%>%
   rename(intervention = x, cause =y)%>%
   mutate(PP_eff = ifelse(cause == "ihd", 1-0.59,
@@ -504,35 +511,47 @@ targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scen
          SP_eff = ifelse(cause == "ihd", 1-0.576,
                          ifelse(cause=="istroke", 1-0.576,0)),
          cov_inc = ifelse(intervention == "Baseline", 0,
-                          ifelse(intervention=="Scenario 4", 0.045,
-                                 ifelse(intervention=="Scenario 3", 0.025, 
-                                        ifelse(intervention=="Scenario 2", 0.015, 0.015))))
+                          ifelse(intervention=="Scenario 5", 0.045,
+                                 ifelse(intervention=="Scenario 4", 0.025, 
+                                        ifelse(intervention=="Scenario 3", 0.02, 0.015))))
   )
 
 #these are the countries in which the historic rates are faster than 1.5% per year
+b_inc%>%filter(base_inc>0.015)%>%pull(location_name)%>%unique()
 hps<-c("Republic of Korea", "Costa Rica", "Portugal", "Germany", "Iceland", "Canada")
 
-#any countries w/ pr_ddx or pr_trt >80% ?
-unique(prop.cov%>%filter(pr_ddx>0.8)%>%pull(location_name))
-prop.cov<-prop.cov%>%mutate(pr_ddx = ifelse(pr_ddx>0.8,0.8, pr_ddx))
+#any countries in which the historic rates are faster than 2% per year
+b_inc%>%filter(base_inc>0.02)%>%pull(location_name)%>%unique()
+b_inc%>%filter(base_inc>0.025)%>%pull(location_name)%>%unique()
 
-unique(prop.cov%>%filter(pr_trt>0.8)%>%pull(location_name))
-unique(prop.cov%>%filter(pr_trt_SP>0.8)%>%pull(location_name))
+
+#any countries w/ pr_ddx, pr_trt, or pr_trt_SP >66.7% ?
+unique(prop.cov%>%filter(pr_ddx>0.667)%>%pull(location_name))
+unique(prop.cov%>%filter(pr_trt>0.667)%>%pull(location_name))
+unique(prop.cov%>%filter(pr_trt_SP>0.667)%>%pull(location_name))
+
+prop.cov<-prop.cov%>%mutate(pr_ddx = ifelse(pr_ddx>0.667, 0.667, pr_ddx))
+prop.cov<-prop.cov%>%mutate(pr_trt = ifelse(pr_trt>0.667, 0.667, pr_trt))
 
 df_out<-left_join(targets, prop.cov)%>%
   left_join(., b_inc)%>%
+  left_join(., baseline.coverage%>%select(-pr_trt))%>%
   mutate(cov_inc = ifelse(intervention=="Baseline", base_inc, cov_inc),
-         cov_inc = ifelse(intervention=="Scenario 1" & location_name%in%hps, base_inc, cov_inc))%>%
+         cov_inc = ifelse(intervention%in%c("Alt Scenario 1","Scenario 1", "Scenario 2") & location_name%in%hps, base_inc, cov_inc),
+         cov_inc = ifelse(intervention == "Scenario 3" & location_name == "Republic of Korea", base_inc, cov_inc))%>%
   merge(., data.frame(year=2017:2050))%>%
-  left_join(., baseline.coverage)%>%
   mutate(pp.cov.inc = ifelse(year>=2023, cov_inc*(year-2022), 0),
          sp.cov.inc = ifelse(year>=2023, cov_inc*(year-2022), 0),
-         pp.max = ifelse(intervention == "Scenario 4", 0.9, 
-                         ifelse(intervention == "Scenario 3", 0.8,
-                                ifelse(intervention =="Scenario 2", pr_ddx, pr_trt))), #cap at Scenario-specific targets
-         sp.max = ifelse(intervention == "Scenario 4", 0.9, 
-                         ifelse(intervention == "Scenario 3", 0.8,
-                                ifelse(intervention == "Scenario 2", 0.8, pr_trt_SP))),
+         pp.max = ifelse(intervention == "Scenario 5", 0.9, 
+                         ifelse(intervention == "Scenario 4", 0.8,
+                                ifelse(intervention == "Scenario 3", 0.667,
+                                  ifelse(intervention == "Alt Scenario 1", ifelse(pr_trt>0.5, pr_trt, 0.5),
+                                   ifelse(intervention =="Scenario 2", pr_ddx, pr_trt))))), #cap at Scenario-specific targets
+         sp.max = ifelse(intervention == "Scenario 5", 0.9, 
+                         ifelse(intervention == "Scenario 4", 0.8,
+                                ifelse(intervention == "Scenario 3", 0.667,
+                                 ifelse(intervention == "Alt Scenario 1", ifelse(pr_trt_SP>0.5, pr_trt_SP, 0.5),
+                                  ifelse(intervention == "Scenario 2", 0.667, pr_trt_SP))))),
          pp.cov.inc = ifelse(pp_cov+pp.cov.inc>=pp.max, (pp.max-pp_cov), pp.cov.inc),
          sp.cov.inc = ifelse(sp_cov+sp.cov.inc>=sp.max, (sp.max-sp_cov), sp.cov.inc)
          )%>%
@@ -562,7 +581,7 @@ ggplot(df_out%>%filter(cause=="ihd"), aes(x=year, y=sp.cov.inc+sp_cov, group=loc
   ggtitle("Secondary prevention coverage scale-up: IHD")+
   ylim(0,1)
 
-ggsave("../outputs/SP_coverage.jpeg", height=4, width=12)
+ggsave("../outputs/SP_coverage_noaspirin.jpeg", height=4, width=12)
 
 #change to old gbd names
 df_out<-left_join(df_out, locs)%>%
@@ -655,12 +674,6 @@ write.csv(baseline.coverage%>%select(location_name, iso3, pp_cov, sp_cov),
 
 #Scenarios targets
 
-#Scenario 1 PP: Already on treatment but not optimized (step-up or substitution therapy)
-#Scenario 1 SP: Already on some but not all medications (step-up or substitution therapy)
-#Scenario 2 PP: Aware of high CVD risk but not on any treatment (initiation of therapy)
-#Scenario 2 SP: 70% (aware assumption)
-#Scenarios 3+4: 80%
-
 #baseline rate of increase
 b_inc<-read.csv("baseline_increase.csv", stringsAsFactors = F)%>%
   left_join(., locs)%>%
@@ -677,15 +690,16 @@ sp_treated<-data.frame(wb2021=c("HIC", "UMIC", "LMIC", "LIC"),
 prop.cov<-left_join(cascade%>%merge(., data.frame(cause=c("ihd", "hhd", "istroke", "hstroke"))), sp_treated)%>%
   select(location_name, iso3, cause, pr_ddx, pr_trt, pr_trt_SP)
 
-#any countries w/ pr_ddx or pr_trt >80% ?
-unique(prop.cov%>%filter(pr_ddx>0.8)%>%pull(location_name))
-prop.cov<-prop.cov%>%mutate(pr_ddx = ifelse(pr_ddx>0.8,0.8, pr_ddx))
+#any countries w/ pr_ddx or pr_trt >66.7% ?
+unique(prop.cov%>%filter(pr_ddx>0.667)%>%pull(location_name))
+unique(prop.cov%>%filter(pr_trt>0.667)%>%pull(location_name))
+prop.cov<-prop.cov%>%mutate(pr_ddx = ifelse(pr_ddx>0.667, 0.667, pr_ddx))
+prop.cov<-prop.cov%>%mutate(pr_trt = ifelse(pr_trt>0.667, 0.667, pr_trt))
 
-unique(prop.cov%>%filter(pr_trt>0.8)%>%pull(location_name))
-unique(prop.cov%>%filter(pr_trt_SP>0.8)%>%pull(location_name))
+unique(prop.cov%>%filter(pr_trt_SP>0.667)%>%pull(location_name))
 
 
-targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4"),
+targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4", "Scenario 5", "Alt Scenario 1"),
                y = c("ihd", "hhd", "istroke", "hstroke"))%>%
   rename(intervention = x, cause =y)%>%
   mutate(PP_eff = ifelse(cause == "ihd", 1-0.47,
@@ -694,25 +708,31 @@ targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scen
          SP_eff = ifelse(cause == "ihd", 1-0.51,
                          ifelse(cause=="istroke", 1-0.51,0)),
          cov_inc = ifelse(intervention == "Baseline", 0,
-                          ifelse(intervention=="Scenario 4", 0.045,
-                                 ifelse(intervention=="Scenario 3", 0.025, 
-                                        ifelse(intervention=="Scenario 2", 0.015, 0.015))))
+                          ifelse(intervention=="Scenario 5", 0.045,
+                                 ifelse(intervention=="Scenario 4", 0.025, 
+                                        ifelse(intervention=="Scenario 3", 0.02, 0.015))))
   )
+
 
 df_out<-left_join(targets, prop.cov)%>%
   left_join(., b_inc)%>%
+  left_join(., baseline.coverage%>%select(-pr_trt))%>%
   mutate(cov_inc = ifelse(intervention=="Baseline", base_inc, cov_inc),
-         cov_inc = ifelse(intervention=="Scenario 1" & location_name%in%hps, base_inc, cov_inc))%>%
+         cov_inc = ifelse(intervention%in%c("Alt Scenario 1", "Scenario 1", "Scenario 2") & location_name%in%hps, base_inc, cov_inc),
+         cov_inc = ifelse(intervention == "Scenario 3" & location_name == "Republic of Korea", base_inc, cov_inc))%>%
   merge(., data.frame(year=2017:2050))%>%
-  left_join(., baseline.coverage)%>%
   mutate(pp.cov.inc = ifelse(year>=2023, cov_inc*(year-2022), 0),
          sp.cov.inc = ifelse(year>=2023, cov_inc*(year-2022), 0),
-         pp.max = ifelse(intervention == "Scenario 4", 0.9, 
-                         ifelse(intervention == "Scenario 3", 0.8,
-                                ifelse(intervention =="Scenario 2", pr_ddx, pr_trt))), #cap at Scenario-specific targets
-         sp.max = ifelse(intervention == "Scenario 4", 0.9, 
-                         ifelse(intervention == "Scenario 3", 0.8,
-                                ifelse(intervention == "Scenario 2", 0.8, pr_trt_SP))),
+         pp.max = ifelse(intervention == "Scenario 5", 0.9, 
+                         ifelse(intervention == "Scenario 4", 0.8,
+                                ifelse(intervention == "Scenario 3", 0.667,
+                                       ifelse(intervention == "Alt Scenario 1", ifelse(pr_trt>0.5, pr_trt, 0.5),
+                                              ifelse(intervention =="Scenario 2", pr_ddx, pr_trt))))), #cap at Scenario-specific targets
+         sp.max = ifelse(intervention == "Scenario 5", 0.9, 
+                         ifelse(intervention == "Scenario 4", 0.8,
+                                ifelse(intervention == "Scenario 3", 0.667,
+                                       ifelse(intervention == "Alt Scenario 1", ifelse(pr_trt_SP>0.5, pr_trt_SP, 0.5),
+                                              ifelse(intervention == "Scenario 2", 0.667, pr_trt_SP))))),
          pp.cov.inc = ifelse(pp_cov+pp.cov.inc>=pp.max, (pp.max-pp_cov), pp.cov.inc),
          sp.cov.inc = ifelse(sp_cov+sp.cov.inc>=sp.max, (sp.max-sp_cov), sp.cov.inc)
   )%>%
@@ -739,4 +759,18 @@ ggplot(df_out%>%filter(cause=="ihd"), aes(x=year, y=pp.cov.inc+pp_cov, group=loc
   ylim(0,1)
 
 ggsave("../outputs/PP_coverage_aspirin.jpeg", height=4, width=12)
+
+
+ggplot(df_out%>%filter(cause=="ihd"), aes(x=year, y=sp.cov.inc+sp_cov, group=location_name))+
+  facet_wrap(~intervention, nrow=1)+
+  geom_line()+
+  ylab("Secondary prevention coverage")+
+  xlab("Year")+
+  ggtitle("Secondary prevention coverage scale-up, with aspirin: IHD")+
+  ylim(0,1)
+
+ggsave("../outputs/SP_coverage_aspirin.jpeg", height=4, width=12)
+
+
+
 
