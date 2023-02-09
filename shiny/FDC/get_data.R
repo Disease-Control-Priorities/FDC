@@ -5,6 +5,7 @@ pacman::p_load(data.table, dplyr, tidyr, stringr, ggplot2, tidyverse, broom, rea
 load("../../not_on_github/output_aspirin2.Rda") #output2
 load("../../not_on_github/output2.Rda") #output
 rm(reg)
+rm(wpp_20)
 
 output<-output%>%filter(intervention!="Baseline")%>%
   bind_rows(.,output2%>%filter(intervention=="Baseline"))
@@ -76,7 +77,8 @@ download2<-output2%>%
 rm(output)
 rm(output2)
 
-download<-bind_rows(download1, download2)
+download<-bind_rows(download1, download2)%>%filter(intervention!="Alt Scenario 1", intervention!="Scenario 5")
+unique(download$intervention)
 #reorder columns
 download <- download[, c(13, 1,2,3,4,5,6,7,8,9,10,11,12)]
 write.csv(download, "for_download.csv", row.names = F)
