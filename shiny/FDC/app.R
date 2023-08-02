@@ -44,6 +44,8 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
+          tabsetPanel(type = "tabs",
+          tabPanel("Results",
            h4(strong("Figure 1."), "Worldwide cumulative CVD events and deaths averted by FDCs over 2023-2030 compared to maintaining current care."),
            plotOutput("plot1"),
            h5(em("Note: Worldwide cumulative CVD events are the aggregate of 
@@ -64,9 +66,12 @@ ui <- fluidPage(
               primary prevention FDC containing aspirin; secondary prevention FDCs are 
               assumed to contain aspirin. See table 1 for details of each of the four 
               scenarios."))
-        )
-    )
-)
+          ),
+          tabPanel("Coverage", )
+        ) #tabsetPanel
+        ) #mainPanel
+    ) #sidebarLayout
+) #ui
 
 # Define server logic
 server <- function(input, output) {

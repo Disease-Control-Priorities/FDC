@@ -5,7 +5,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
 #################################################################################################
-load("not_on_github/base_rates.Rda") #data too large for github
+load("data_80_80_80/base_rates.Rda") #data too large for github
 
 #update with wpp2021 estimates for incoming 20-year old cohorts
 load("data_NCDC/wpp_age_20.Rda")
@@ -18,7 +18,8 @@ b_rates<-b_rates%>%
   select(-Population, -iso3)
 
 ##coverage and effects
-inc<-read.csv("scale-up_withaspirin.csv", stringsAsFactors = F)
+inc<-read.csv("scale-up_withaspirin.csv", stringsAsFactors = F)%>%
+  filter(intervention!= "Alt Scenario 1", intervention!="Scenario 5")
 unique(inc$intervention)
 #updating TPs with new scale-up fxn for those 80+
 #run regression for age 80-94, grouped by year, sex, cause, intervention
@@ -156,12 +157,6 @@ ggplot(p, aes(x=year, y=dead, color=intervention))+
   geom_point()+
   facet_wrap(~location, scales = "free")
 
-#ggsave("test_fatal.jpeg", height = 6, width = 8)
-
-ggplot(p, aes(x=year, y=sick, color=intervention))+
-  geom_point()+
-  facet_wrap(~location, scales="free")
-
 #####################################################################
 #loop
 output2<-project.all(countrylist[1])
@@ -173,40 +168,42 @@ for(i in 2:182){
 }
 
 time2<-Sys.time()
-time2-time1 # ~45 mins for 182 countries
+time2-time1 # ~21 mins for 182 countries
 
 drops <- c("all", "b_rates", "cfr", "df", "inc", "names", "p", "project.all",
            "pop20", "test", "wpp.adj", "time1", "time2", "i", "countrylist")
 rm(list = c(drops,"drops"))
 
-save.image(file = "not_on_github/output_aspirin2.Rda") #file too large
-load("not_on_github/output_aspirin2.Rda")
+save.image(file = "output_aspirin2.Rda")
 
 #######################################################################
 #Tables and figures
 #######################################################################
 
+load("output_aspirin2.Rda")
+
 pop<-output2%>%filter(year==2019, intervention=="Baseline")%>%
   group_by(location)%>%summarise(Nx = sum(pop, na.rm = T))
 
-inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-  select(wb_region, location_wb, location_gbd)%>%
-  rename(location = location_gbd)%>%
-  right_join(., read.csv("not_on_github/cvd_events2.csv", stringsAsFactors = F))%>%
-  filter(CV.death!=0)%>%
-  mutate(MI_ratio = MI/CV.death,
-         stroke_ratio = Stroke/CV.death,
-         HF_ratio = Heart.Failure/CV.death)%>%
-  left_join(., pop)%>%
-  na.omit()%>%
-  group_by(wb_region)%>%
-  summarise(MI_ratio = weighted.mean(MI_ratio, Nx),
-            stroke_ratio = weighted.mean(stroke_ratio, Nx),
-            HF_ratio = weighted.mean(HF_ratio, Nx))%>%
-  right_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-               select(wb_region, location_gbd)%>%
-               rename(location = location_gbd))%>%
-  select(-wb_region)
+#inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+#  select(wb_region, location_wb, location_gbd)%>%
+#  rename(location = location_gbd)%>%
+#  right_join(., read.csv("cvd_events2.csv", stringsAsFactors = F))%>%
+#  filter(CV.death!=0)%>%
+#  mutate(MI_ratio = MI/CV.death,
+#         stroke_ratio = Stroke/CV.death,
+#         HF_ratio = Heart.Failure/CV.death)%>%
+#  left_join(., pop)%>%
+#  na.omit()%>%
+#  group_by(wb_region)%>%
+#  summarise(MI_ratio = weighted.mean(MI_ratio, Nx),
+#            stroke_ratio = weighted.mean(stroke_ratio, Nx),
+#            HF_ratio = weighted.mean(HF_ratio, Nx))%>%
+#  right_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+#               select(wb_region, location_gbd)%>%
+#               rename(location = location_gbd))%>%
+#  select(-wb_region)
+inc_adjust<-read.csv("cvd_events3.csv", stringsAsFactors = F)
 
 table1<-output2%>%
   filter(cause!="hhd")%>%
@@ -253,9 +250,7 @@ table2<-output2%>%
   mutate(`Scenario 1` = signif((Baseline- `Scenario 1`), 2),
          `Scenario 2` = signif((Baseline- `Scenario 2`), 2),
          `Scenario 3` = signif((Baseline- `Scenario 3`), 2),
-         `Scenario 4` = signif((Baseline- `Scenario 4`), 2),
-         `Scenario 5` = signif((Baseline- `Scenario 5`), 2),
-         `Alt Scenario 1` = signif((Baseline- `Alt Scenario 1`), 2))%>%
+         `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
   select(-Baseline)
 
 write.csv(table2, "outputs/cumulative_resuts_aspirin_new.csv")

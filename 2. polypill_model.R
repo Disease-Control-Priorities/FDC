@@ -5,7 +5,7 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
 #################################################################################################
-load("not_on_github/base_rates.Rda") #data too large for github
+load("data_80_80_80/base_rates.Rda") #data too large for github
 
 #update with wpp2021 estimates for incoming 20-year old cohorts
 load("data_NCDC/wpp_age_20.Rda")
@@ -19,7 +19,7 @@ b_rates<-b_rates%>%
 
 ##coverage and effects
 inc<-read.csv("scale-up.csv", stringsAsFactors = F)%>%
-  filter(intervention!="Baseline") #don't need to run baseline again
+  filter(intervention!="Baseline", intervention!="Scenario 5", intervention!="Alt Scenario 1") #don't need to run baseline again
 
 #updating TPs with new scale-up fxn for those 80+
 #run regression for age 80-94, grouped by year, sex, cause, intervention
@@ -155,13 +155,6 @@ ggplot(p, aes(x=year, y=dead, color=intervention))+
   geom_point()+
   facet_wrap(~location, scales = "free")
 
-#ggsave("test_fatal.jpeg", height = 6, width = 8)
-
-ggplot(p, aes(x=year, y=sick, color=intervention))+
-  geom_point()+
-  facet_wrap(~location, scales="free")
-
-#ggsave("test_nonfatal.jpeg", height = 6, width = 8)
 
 #####################################################################
 #loop
@@ -174,16 +167,19 @@ for(i in 2:182){
 }
 
 time2<-Sys.time()
-time2-time1 #30 mins for 182 countries
+time2-time1 #40 mins for 182 countries
 
 drops <- c("all", "b_rates", "cfr", "df", "inc", "names", "p", "project.all",
            "pop20", "test", "wpp.adj", "time1", "time2", "i", "countrylist")
 rm(list = c(drops,"drops"))
 
-save.image(file = "not_on_github/output2.Rda")
+save.image(file = "output2.Rda")
 
-load("not_on_github/output2.Rda")
-load("not_on_github/output_aspirin2.Rda")
+
+######################################
+
+load("output2.Rda")
+load("output_aspirin2.Rda")
 
 output<-bind_rows(output, output2%>%filter(intervention=="Baseline"))
 
@@ -198,7 +194,7 @@ rm(output2)
 inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
   select(wb_region, location_wb, location_gbd)%>%
   rename(location = location_gbd)%>%
-  right_join(., read.csv("not_on_github/cvd_events2.csv", stringsAsFactors = F))%>%
+  right_join(., read.csv("cvd_events2.csv", stringsAsFactors = F))%>%
   filter(CV.death!=0)%>%
   mutate(MI_ratio = MI/CV.death,
          stroke_ratio = Stroke/CV.death,
