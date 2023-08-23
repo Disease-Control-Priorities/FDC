@@ -2,7 +2,7 @@ rm(list=ls())
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(dplyr, tidyr, ggplot2, boot)   
 
-#SKIP to line 800 for new method
+#SKIP to line 828 for new method
 
 ### tl;dr for Sarah: see models on lines listed below for coefficients to use in predictions
 ### predictions will give expected value in logit space, need to convert to % by using inverse logit!
@@ -597,7 +597,7 @@ ggplot(df_out%>%filter(cause=="ihd", intervention!="Alt Scenario 1"),
   ggtitle("Primary prevention coverage scale-up, no aspirin: IHD")+
   ylim(0,1)
 
-ggsave("../outputs/PP_coverage_noaspirin.jpeg", height=4, width=12)
+#ggsave("../outputs/PP_coverage_noaspirin.jpeg", height=4, width=12)
 
 ggplot(df_out%>%filter(cause=="ihd", intervention!="Alt Scenario 1"), 
        aes(x=year, y=sp.cov.inc+sp_cov, group=location_name))+
@@ -608,7 +608,7 @@ ggplot(df_out%>%filter(cause=="ihd", intervention!="Alt Scenario 1"),
   ggtitle("Secondary prevention coverage scale-up: IHD")+
   ylim(0,1)
 
-ggsave("../outputs/SP_coverage_noaspirin.jpeg", height=4, width=12)
+#ggsave("../outputs/SP_coverage_noaspirin.jpeg", height=4, width=12)
 
 #change to old gbd names
 df_out<-left_join(df_out, locs)%>%
@@ -809,7 +809,7 @@ ggplot(df_out%>%filter(cause=="ihd", intervention!="Alt Scenario 1"),
   ggtitle("Primary prevention coverage scale-up, with aspirin: IHD")+
   ylim(0,1)
 
-ggsave("../outputs/PP_coverage_aspirin.jpeg", height=4, width=12)
+#ggsave("../outputs/PP_coverage_aspirin.jpeg", height=4, width=12)
 
 
 ggplot(df_out%>%filter(cause=="ihd", intervention!="Alt Scenario 1"), 
@@ -943,7 +943,7 @@ baselineSP_asp<-cascade3%>%
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
 
-plot<-bind_rows(htn, baselinePP%>%group_by(location_name, iso3, year)%>%
+plot<-bind_rows(htn%>%filter(year<2017), baselinePP%>%group_by(location_name, iso3, year)%>%
                   summarise(Aware = mean(Aware),
                             Treated = mean(Treated),
                             Control = mean(Control)))
@@ -967,22 +967,43 @@ ggplot(plot, aes(x=year, y=Control, groups=location_name))+
   geom_line()
 
 
-
 #Average increase in baseline control rates?
-baselinePP%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+#need to do population weighting**
+pop<-read.csv("API_SP.POP.TOTL_DS2_en_csv_v2_5795797.csv", stringsAsFactors = F, skip=4)%>%
+  select(iso3 = Country.Code, pop = X2019)
+
+baselinePP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
+
+baselinePP_asp%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
+
+baselineSP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
 
 
-baselinePP_asp%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+baselineSP_asp%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
 
 #construct intervention scenarios
 
@@ -998,7 +1019,7 @@ scenario1_PP<-cascade2%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*initiation_aroc + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1014,7 +1035,7 @@ scenario1_SP<-cascade2%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*initiation_aroc + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1031,7 +1052,7 @@ scenario1_PP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*initiation_aroc + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1047,7 +1068,7 @@ scenario1_SP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*initiation_aroc + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1060,15 +1081,22 @@ ggplot(plot3, aes(x=year, y=Control, groups=location_name))+
   geom_line()+
   facet_grid(cause~scenario)
 
-
-
 #average rate of scale up
-scenario1_PP%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+scenario1_PP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
+
+scenario1_PP_asp%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
 
 
 ## Scenario 2
@@ -1083,7 +1111,7 @@ scenario2_PP<-cascade2%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.01) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1099,7 +1127,7 @@ scenario2_SP<-cascade2%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.01) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1116,7 +1144,7 @@ scenario2_PP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.01) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1132,7 +1160,7 @@ scenario2_SP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.01) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1146,12 +1174,13 @@ ggplot(plot3, aes(x=year, y=Control, groups=location_name))+
   facet_grid(cause~scenario)
 
 #average rate of scale up
-scenario2_PP%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+scenario2_SP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
 
 
 ## Scenario 3
@@ -1166,7 +1195,7 @@ scenario3_PP<-cascade2%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.01) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1182,7 +1211,7 @@ scenario3_SP<-cascade2%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.01) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1200,7 +1229,7 @@ scenario3_PP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.01) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1216,7 +1245,7 @@ scenario3_SP_asp<-cascade3%>%
          Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.01) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1231,12 +1260,14 @@ ggplot(plot3, aes(x=year, y=Control, groups=location_name))+
   facet_grid(cause~scenario)
 
 #average rate of scale up
-scenario3_PP%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+scenario3_PP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
+
 
 ## Scenario 4
 scenario4_PP<-cascade2%>%
@@ -1245,12 +1276,12 @@ scenario4_PP<-cascade2%>%
   mutate(initiation_aroc = ifelse(initiation_aroc>0.005, 0.005, initiation_aroc),
          adherence_aroc = ifelse(adherence_aroc>0.005, 0.005, adherence_aroc))%>%
   mutate(Aware = ifelse(year<2023, pp_aware, 0.95 - (0.95-pp_aware)*exp(-aware_aroc*(year-2022))), #log scale
-         Aware = ifelse(year<2023, pp_aware, Aware + (year-2022)*(aware_aroc+0.015)), #linear scale
+         Aware = ifelse(year<2023, pp_aware, Aware + (year-2022)*(aware_aroc+0.02)), #linear scale
          Aware = ifelse(Aware>0.95, 0.95, Aware),
-         Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.015) + pp_initiation)),
+         Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.02) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1261,12 +1292,12 @@ scenario4_SP<-cascade2%>%
   mutate(initiation_aroc = ifelse(initiation_aroc>0.005, 0.005, initiation_aroc),
          adherence_aroc = ifelse(adherence_aroc>0.005, 0.005, adherence_aroc))%>%
   mutate(Aware = ifelse(year<2023, sp_aware, 0.95 - (0.95-sp_aware)*exp(-aware_aroc*(year-2022))), #log scale
-         Aware = ifelse(year<2023, sp_aware, Aware + (year-2022)*(aware_aroc+0.015)), #linear scale
+         Aware = ifelse(year<2023, sp_aware, Aware + (year-2022)*(aware_aroc+0.02)), #linear scale
          Aware = ifelse(Aware>0.95, 0.95, Aware),
-         Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.015) + sp_initiation)),
+         Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.02) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1279,12 +1310,12 @@ scenario4_PP_asp<-cascade3%>%
   mutate(initiation_aroc = ifelse(initiation_aroc>0.005, 0.005, initiation_aroc),
          adherence_aroc = ifelse(adherence_aroc>0.005, 0.005, adherence_aroc))%>%
   mutate(Aware = ifelse(year<2023, pp_aware, 0.95 - (0.95-pp_aware)*exp(-aware_aroc*(year-2022))), #log scale
-         Aware = ifelse(year<2023, pp_aware, Aware + (year-2022)*(aware_aroc+0.015)), #linear scale
+         Aware = ifelse(year<2023, pp_aware, Aware + (year-2022)*(aware_aroc+0.02)), #linear scale
          Aware = ifelse(Aware>0.95, 0.95, Aware),
-         Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.015) + pp_initiation)),
+         Initiation = ifelse(year<2023, pp_initiation, ((year-2022)*(initiation_aroc+0.02) + pp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.015) + pp_adherence)),
+         Adherence = ifelse(year<2023, pp_adherence, ((year-2022)*(adherence_aroc+0.02) + pp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1295,12 +1326,12 @@ scenario4_SP_asp<-cascade3%>%
   mutate(initiation_aroc = ifelse(initiation_aroc>0.005, 0.005, initiation_aroc),
          adherence_aroc = ifelse(adherence_aroc>0.005, 0.005, adherence_aroc))%>%
   mutate(Aware = ifelse(year<2023, sp_aware, 0.95 - (0.95-sp_aware)*exp(-aware_aroc*(year-2022))), #log scale
-         Aware = ifelse(year<2023, sp_aware, Aware + (year-2022)*(aware_aroc+0.015)), #linear scale
+         Aware = ifelse(year<2023, sp_aware, Aware + (year-2022)*(aware_aroc+0.02)), #linear scale
          Aware = ifelse(Aware>0.95, 0.95, Aware),
-         Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.015) + sp_initiation)),
+         Initiation = ifelse(year<2023, sp_initiation, ((year-2022)*(initiation_aroc+0.02) + sp_initiation)),
          Initiation = ifelse(Initiation>0.95 ,0.95, Initiation),
          Treated = Aware * Initiation,
-         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.015) + sp_adherence)),
+         Adherence = ifelse(year<2023, sp_adherence, ((year-2022)*(adherence_aroc+0.02) + sp_adherence)),
          Adherence = ifelse(Adherence>0.95 ,0.95, Adherence),
          Control = Treated*Adherence)%>%
   select(location_name, iso3, cause, year, Aware, Treated, Control, Initiation, Adherence)
@@ -1314,12 +1345,13 @@ ggplot(plot3, aes(x=year, y=Control, groups=location_name))+
   facet_grid(cause~scenario)
 
 #average rate of scale up
-scenario4_PP%>%filter(year>=2022)%>%
-  nest(-location_name, -cause)%>%
-  mutate(control = map(data, ~coef(lm(Control ~ year, data=.x))[["year"]]))%>%
-  select(-data)%>%
-  unnest()%>%
-  summarise(incr = mean(control))
+scenario4_SP%>%filter(year %in% c(2022,2050))%>%
+  select(year, iso3, Control, cause)%>%
+  spread(year, Control)%>%
+  left_join(., pop)%>%
+  mutate(slope = (`2050` - `2022`)/(2050-2022))%>%
+  na.omit()%>%
+  summarise(rate = weighted.mean(slope, pop))
 
 
 #replicate original plot:
@@ -1378,9 +1410,12 @@ ggplot(plot2, aes(x=year, y=val, color=scenario))+
   facet_wrap(~Metric)+
   ylab("Proportion of all primary prevention patients")+
   xlab("Year")+
-  ylim(0,1)
+  ylim(0,1)+
+  labs(color = "Scenario")+
+  theme_bw()
 
 ggsave("../outputs/cascade.jpeg", height=4, width=8)
+write.csv(plot, "../cascade_data_trt.csv", row.names = F)
 
 #SP
 plot<-bind_rows(baselineSP%>%mutate(scenario="Baseline"),
@@ -1405,7 +1440,6 @@ ggsave("../outputs/new_coverage_SP.jpeg", width=10, height=4)
 
 
 #put it in scale-up format
-
 sup<-read.csv("../scale-up.csv", stringsAsFactors = F)
 sup_aspirin<-read.csv("../scale-up_withaspirin.csv", stringsAsFactors = F)
 
@@ -1415,14 +1449,14 @@ cov<-bind_rows(baselinePP%>%mutate(intervention="Baseline"),
               scenario2_PP%>%mutate(intervention="Scenario 2"),
               scenario3_PP%>%mutate(intervention="Scenario 3"))%>%
   select(location_name, iso3, cause, year, intervention, 
-         pp_cov = Control)%>%
+         pp_cov = Control, pp_trt = Treated)%>%
   left_join(., bind_rows(baselineSP%>%mutate(intervention="Baseline"),
                          scenario4_SP%>%mutate(intervention="Scenario 4"),
                          scenario1_SP%>%mutate(intervention="Scenario 1"),
                          scenario2_SP%>%mutate(intervention="Scenario 2"),
                          scenario3_SP%>%mutate(intervention="Scenario 3"))%>%
               select(location_name, iso3, cause, year, intervention, 
-                     sp_cov = Control)
+                     sp_cov = Control, sp_trt = Treated)
   )%>%left_join(., sup%>%select(-pp.cov.inc, -sp.cov.inc, -pp_cov, -sp_cov))%>%
   group_by(intervention, location_name, cause)%>%
   arrange(year, .by_group=TRUE)%>%
@@ -1431,7 +1465,13 @@ cov<-bind_rows(baselinePP%>%mutate(intervention="Baseline"),
          pp.cov.inc = cumsum(pp.cov.inc),
          sp.cov.inc = sp_cov - shift(sp_cov),
          sp.cov.inc = ifelse(is.na(sp.cov.inc), 0, sp.cov.inc),
-         sp.cov.inc = cumsum(sp.cov.inc))
+         sp.cov.inc = cumsum(sp.cov.inc),
+         pp.trt.inc = pp_trt - shift(pp_trt),
+         pp.trt.inc = ifelse(is.na(pp.trt.inc), 0, pp.trt.inc),
+         pp.trt.inc = cumsum(pp.trt.inc),
+         sp.trt.inc = sp_trt - shift(sp_trt),
+         sp.trt.inc = ifelse(is.na(sp.trt.inc), 0, sp.trt.inc),
+         sp.trt.inc = cumsum(sp.trt.inc))
 
 write.csv(cov, "../scale-up-new.csv", row.names = F)
 
@@ -1443,14 +1483,14 @@ cov2<-bind_rows(baselinePP_asp%>%mutate(intervention="Baseline"),
                scenario2_PP_asp%>%mutate(intervention="Scenario 2"),
                scenario3_PP_asp%>%mutate(intervention="Scenario 3"))%>%
   select(location_name, iso3, cause, year, intervention, 
-         pp_cov = Control)%>%
+         pp_cov = Control, pp_trt = Treated)%>%
   left_join(., bind_rows(baselineSP_asp%>%mutate(intervention="Baseline"),
                          scenario4_SP_asp%>%mutate(intervention="Scenario 4"),
                          scenario1_SP_asp%>%mutate(intervention="Scenario 1"),
                          scenario2_SP_asp%>%mutate(intervention="Scenario 2"),
                          scenario3_SP_asp%>%mutate(intervention="Scenario 3"))%>%
               select(location_name, iso3, cause, year, intervention, 
-                     sp_cov = Control)
+                     sp_cov = Control, sp_trt = Treated)
   )%>%left_join(., sup_aspirin%>%select(-pp.cov.inc, -sp.cov.inc, -pp_cov, -sp_cov))%>%
   group_by(intervention, location_name, cause)%>%
   arrange(year, .by_group=TRUE)%>%
@@ -1459,7 +1499,13 @@ cov2<-bind_rows(baselinePP_asp%>%mutate(intervention="Baseline"),
          pp.cov.inc = cumsum(pp.cov.inc),
          sp.cov.inc = sp_cov - shift(sp_cov),
          sp.cov.inc = ifelse(is.na(sp.cov.inc), 0, sp.cov.inc),
-         sp.cov.inc = cumsum(sp.cov.inc))
+         sp.cov.inc = cumsum(sp.cov.inc),
+         pp.trt.inc = pp_trt - shift(pp_trt),
+         pp.trt.inc = ifelse(is.na(pp.trt.inc), 0, pp.trt.inc),
+         pp.trt.inc = cumsum(pp.trt.inc),
+         sp.trt.inc = sp_trt - shift(sp_trt),
+         sp.trt.inc = ifelse(is.na(sp.trt.inc), 0, sp.trt.inc),
+         sp.trt.inc = cumsum(sp.trt.inc))
 
 write.csv(cov2, "../scale-up-new-aspirin.csv", row.names = F)
 

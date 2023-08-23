@@ -2,13 +2,6 @@ rm(list=ls())
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
-########
-#Test
-########
-
-
-
-
 #combine plots
 
 plot<-read.csv("outputs/plot_data/Fig2_data_aspririn.csv", stringsAsFactors = F)%>%
@@ -18,7 +11,7 @@ plot2<-read.csv("outputs/plot_data/Fig2_data.csv", stringsAsFactors = F)%>%
 
 fig1<-bind_rows(plot, plot2)%>%
   mutate(metric = ifelse(metric=="Cumulative cases averted", "Cumulative events averted", metric),
-         Intervention = factor(Intervention, levels=c("Scenario 5", "Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))
+         Intervention = factor(Intervention, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))
 
 library(viridis)
 ggplot(fig1%>%filter(metric %in% c("Cumulative events averted", "Cumulative deaths averted"), Intervention!="Scenario 5"), 
@@ -161,7 +154,7 @@ ggplot(plot3, aes(x=year, y=x50q30, color=intervention, linetype=FDC))+
   scale_color_viridis(discrete = T) 
 
 
-ggsave("outputs/appendix_50q30fig.jpeg", height=4, width=6)
+#ggsave("outputs/appendix_50q30fig.jpeg", height=4, width=6)
 
 
 #########

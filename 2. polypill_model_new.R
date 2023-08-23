@@ -5,23 +5,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
 
 #################################################################################################
-load("data_80_80_80/base_rates.Rda") #data too large for github
-
-#update with wpp2021 estimates for incoming 20-year old cohorts
-load("data_NCDC/wpp_age_20.Rda")
-
-b_rates<-b_rates%>%
-  mutate(iso3 = countrycode::countrycode(location, "country.name", "iso3c"))%>%
-  left_join(., wpp_20%>%select(iso3, year, sex, Population))%>%
-  mutate(Nx = ifelse(age==20, Population, Nx),
-         pop = ifelse(age==20, Population, pop))%>%
-  select(-Population, -iso3)
+#load TPs
+load("new_rates.Rda")
+load("set-up.Rda")
 
 ##coverage and effects
 inc<-read.csv("scale-up-new.csv", stringsAsFactors = F)
-
-any(is.na(inc))
-unique(inc$cause)
 
 #updating TPs with new scale-up fxn for those 80+
 #run regression for age 80-94, grouped by year, sex, cause, intervention
@@ -33,25 +22,33 @@ reg<-b_rates%>%
   nest(-year, -sex, -cause, -location)%>%
   mutate(ir_slope = map(data, ~coef(lm(IR~age, data=.x))[["age"]]),
          cf_slope = map(data, ~coef(lm(CF~age, data=.x))[["age"]]))%>%
-  select(-data)#takes 1-2 minutes
-#warnings ok
+  select(-data)#takes 1-2 minutes #warnings ok
 
 reg$ir_slope<-unlist(reg$ir_slope)
 reg$cf_slope<-unlist(reg$cf_slope)
 
 b_rates<-left_join(b_rates, inc)
+b_rates<-data.table(b_rates)
 
+#control
 b_rates[, PP:=1-(PP_eff*pp.cov.inc)]
 b_rates[, SP:=1-(SP_eff*sp.cov.inc)]
 b_rates[is.na(PP),PP:=1]
 b_rates[is.na(SP),SP:=1]
 
-b_rates<-b_rates[age>=55 & age<80, IR:=IR*PP]
-b_rates<-b_rates[age>=55 & age<80, CF:=CF*SP]
+#treatment
+b_rates[, PP_trt:=1-(0.5*PP_eff*(pp.trt.inc-pp.cov.inc))]
+b_rates[, SP_trt:=1-(0.5*SP_eff*(sp.trt.inc-sp.cov.inc))]
+b_rates[is.na(PP_trt),PP_trt:=1]
+b_rates[is.na(SP_trt),SP_trt:=1]
 
-b_rates<-b_rates%>%select(-IRadjust, -CFadjust, -pp.cov.inc, -sp.cov.inc,
+b_rates<-b_rates[age>=55 & age<80, IR:=IR*PP*PP_trt]
+b_rates<-b_rates[age>=55 & age<80, CF:=CF*SP*SP_trt]
+
+b_rates<-b_rates%>%select(-pp.cov.inc, -sp.cov.inc,
                           -pp_cov, -sp_cov, -PP_eff, -SP_eff,
-                          -PP, -SP)
+                          -PP, -SP, -pp.trt.inc, -sp.trt.inc,
+                          -PP_trt, -SP_trt)
 
 #################################################################################################
 # As a function
@@ -181,10 +178,11 @@ save.image(file = "output2_new.Rda")
 
 ######################################
 
-load("output2.Rda")
-load("output_aspirin2.Rda")
+load("output2_new.Rda")
+load("output_aspirin2_new.Rda")
 
-output<-bind_rows(output, output2%>%filter(intervention=="Baseline"))
+output<-bind_rows(output%>%filter(intervention!="Baseline"), 
+                  output2%>%filter(intervention=="Baseline"))
 
 pop<-output2%>%filter(year==2019, intervention=="Baseline")%>%
   group_by(location)%>%summarise(Nx = sum(pop, na.rm = T))
@@ -194,24 +192,10 @@ rm(output2)
 #Tables and figures
 #########################################################################
 
-inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-  select(wb_region, location_wb, location_gbd)%>%
-  rename(location = location_gbd)%>%
-  right_join(., read.csv("cvd_events2.csv", stringsAsFactors = F))%>%
-  filter(CV.death!=0)%>%
-  mutate(MI_ratio = MI/CV.death,
-         stroke_ratio = Stroke/CV.death,
-         HF_ratio = Heart.Failure/CV.death)%>%
-  left_join(., pop)%>%
-  na.omit()%>%
-  group_by(wb_region)%>%
-  summarise(MI_ratio = weighted.mean(MI_ratio, Nx),
-            stroke_ratio = weighted.mean(stroke_ratio, Nx),
-            HF_ratio = weighted.mean(HF_ratio, Nx))%>%
-  right_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-               select(wb_region, location_gbd)%>%
-               rename(location = location_gbd))%>%
-  select(-wb_region)
+inc_adjust<-read.csv("cvd_events_region.csv", stringsAsFactors = F)%>%
+  left_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+              select(wb_region, location_gbd)%>%
+              rename(location = location_gbd))
 
 table1<-output%>%
   filter(cause!="hhd")%>%
@@ -220,14 +204,14 @@ table1<-output%>%
          stroke = dead*stroke_ratio,
          HF = dead*HF_ratio,
          newcases = MI + stroke + HF)%>%
-  group_by(intervention,year)%>%
-  summarise(Incidence =  sum(newcases),
+  group_by(intervention, year)%>%
+  summarise(Incidence = sum(newcases),
             Prevalence = sum(sick),
-            CVD_deaths=  sum(dead),
+            CVD_deaths = sum(dead),
             All_deaths = sum(all.mx)/3)%>%
   filter(year==2020 & intervention=="Baseline" | year==2050)
 
-write.csv(table1, "outputs/Table2_new.csv")
+write.csv(table1, "outputs/Table2_0723.csv")
 
 table1_b<-output%>%
   filter(cause!="hhd", year==2050)%>%
@@ -241,7 +225,7 @@ table1_b<-output%>%
             Prevalence = sum(sick),
             CVD_deaths = sum(dead))
 
-write.csv(table1_b, "outputs/Table2_b_new.csv")
+write.csv(table1_b, "outputs/Table2_b_0723.csv")
 
 table2<-output%>%
   filter(cause!="hhd")%>%
@@ -258,19 +242,17 @@ table2<-output%>%
   mutate(`Scenario 1` = signif((Baseline- `Scenario 1`), 2),
          `Scenario 2` = signif((Baseline- `Scenario 2`), 2),
          `Scenario 3` = signif((Baseline- `Scenario 3`), 2),
-         `Scenario 4` = signif((Baseline- `Scenario 4`), 2),
-         `Scenario 5` = signif((Baseline- `Scenario 5`), 2),
-         `Alt Scenario 1` = signif((Baseline- `Alt Scenario 1`), 2))%>%
+         `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
   select(-Baseline)
 
-write.csv(table2, "outputs/cumulative_resuts_new.csv")
+write.csv(table2, "outputs/cumulative_results_0723.csv")
 
 table3<-output%>%
   filter(cause!="hhd")%>%
   group_by(intervention)%>%
   summarise(All.cause.deaths = sum(all.mx)/3)
 
-write.csv(table3, "outputs/allcauseMX_new.csv")
+write.csv(table3, "outputs/allcauseMX_0723.csv")
 
 #############################
 #Calculate 50q30
@@ -335,7 +317,7 @@ ggplot(all_50q30,
   theme(axis.text.x = element_text(angle=45))+
   scale_color_viridis(discrete = T) 
 
-ggsave("outputs/alt_Figure1_appendix.jpeg", height=4, width=6)
+#ggsave("outputs/alt_Figure1_appendix.jpeg", height=4, width=6)
 
 write.csv(all_50q30, "outputs/plot_data/appendix_50q30.csv")
 
@@ -355,7 +337,7 @@ ggplot(WB_50q30%>%filter(intervention!="Scenario 5", intervention!="Alt Scenario
   theme(axis.text.x = element_text(angle=45))+
   scale_color_viridis(discrete = T) 
 
-ggsave("outputs/Figure1_new.jpeg", height=4, width=9)
+#ggsave("outputs/Figure1_0723.jpeg", height=4, width=9)
 
 write.csv(WB_50q30, "outputs/plot_data/Fig1_data.csv", row.names=F)
 
@@ -379,16 +361,14 @@ plot2<-output%>%filter(intervention!="Alt Scenario 1")%>%
   mutate(`Scenario 1` = Baseline - `Scenario 1`,
          `Scenario 2` = Baseline - `Scenario 2`,
          `Scenario 3` = Baseline - `Scenario 3`,
-         `Scenario 4` = Baseline - `Scenario 4`,
-         `Scenario 5` = Baseline - `Scenario 5`)%>%
+         `Scenario 4` = Baseline - `Scenario 4`)%>%
   select(-Baseline)%>%
   arrange(metric, year)%>%
   group_by(metric)%>%
   mutate(`Scenario 1` = cumsum(`Scenario 1`),
          `Scenario 2` = cumsum(`Scenario 2`),
          `Scenario 3` = cumsum(`Scenario 3`),
-         `Scenario 4` = cumsum(`Scenario 4`),
-         `Scenario 5` = cumsum(`Scenario 5`))%>%
+         `Scenario 4` = cumsum(`Scenario 4`))%>%
   gather(Intervention, value, -year, -metric)
 
 
@@ -403,10 +383,9 @@ plot<-plot2%>%
   group_by(year)%>%
   mutate(`Scenario 2` = `Scenario 2` - `Scenario 1`,
          `Scenario 3` = `Scenario 3` - `Scenario 2` - `Scenario 1`,
-         `Scenario 4` = `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`,
-         `Scenario 5` = `Scenario 5` - `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`)%>%
+         `Scenario 4` = `Scenario 4` - `Scenario 3` - `Scenario 2` - `Scenario 1`)%>%
   gather(Intervention, value, -year, -metric)%>%
-  mutate(Intervention = factor(Intervention, levels=c("Scenario 5", "Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))%>%
+  mutate(Intervention = factor(Intervention, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1")))%>%
   arrange(desc(Intervention))
 
 ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted"), Intervention!="Scenario 5"), 
@@ -419,7 +398,7 @@ ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative death
   ylab("Cumulative cases/deaths averted (millions)")+
   scale_fill_viridis(discrete = T) 
 
-#ggsave("outputs/Figure2_area_new.jpeg", height=4, width=9)
+#ggsave("outputs/Figure2_area_0723.jpeg", height=4, width=9)
 write.csv(plot, "outputs/plot_data/Fig2_data.csv", row.names = F)
 
 ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted")), 
