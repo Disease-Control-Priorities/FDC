@@ -4,9 +4,9 @@ pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)
 
 #combine plots
 
-plot<-read.csv("outputs/plot_data/Fig2_data_aspririn.csv", stringsAsFactors = F)%>%
+plot<-read.csv("outputs/plot_data/Fig2_data_aspririn_new_new.csv", stringsAsFactors = F)%>%
   mutate(Scenario = "FDC with aspirin")
-plot2<-read.csv("outputs/plot_data/Fig2_data.csv", stringsAsFactors = F)%>%
+plot2<-read.csv("outputs/plot_data/Fig2_data_new_new.csv", stringsAsFactors = F)%>%
   mutate(Scenario = "FDC without aspirin")
 
 fig1<-bind_rows(plot, plot2)%>%
@@ -105,9 +105,9 @@ ggplot(fig1%>%filter(metric %in% c("Cumulative deaths averted"), Intervention!="
 
 ###
 
-plot<-read.csv("outputs/plot_data/Fig1_data.csv", stringsAsFactors = F)%>%
+plot<-read.csv("outputs/plot_data/Fig1_data_new_new.csv", stringsAsFactors = F)%>%
   mutate(Scenario = "FDC without aspirin")
-plot2<-read.csv("outputs/plot_data/Fig1_data_aspririn.csv", stringsAsFactors = F)%>%
+plot2<-read.csv("outputs/plot_data/Fig1_data_aspririn_new_new.csv", stringsAsFactors = F)%>%
   mutate(Scenario = "FDC with aspirin")
 
 fig2<-bind_rows(plot, plot2)
@@ -131,11 +131,25 @@ ggplot(fig2%>%filter(intervention!="Alt Scenario 1", intervention!="Scenario 5")
 
 ggsave("outputs/new_Figure2.jpeg", height=5, width=9)
 
+## numbers for paper
 
+diffq30<-read.csv("outputs/plot_data/appendix_50q30_new_new.csv", stringsAsFactors = F)%>%
+  select(-X)%>%mutate(Scenario = "FDC without aspirin")%>%
+  bind_rows(., read.csv("outputs/plot_data/appendix_50q30_aspirin_new_new.csv", stringsAsFactors = F)%>%
+              select(-X)%>%mutate(Scenario = "FDC with aspirin"))%>%
+  mutate(intervention = ifelse(intervention=="Business as usual", "Current care", intervention),
+         wb2021 = "World")%>%
+  bind_rows(., fig2)%>%filter(year %in% c(2020,2050), intervention %in% c("Current care", "Scenario 4"))%>%
+  spread(intervention, x50q30)%>%
+  mutate(diff = (`Current care` - `Scenario 4`)/`Current care`)
 
-plot3<-read.csv("outputs/plot_data/appendix_50q30.csv", stringsAsFactors = F)%>%
+write.csv(diffq30, "outputs/x50q30_new_new.csv", row.names = F)
+
+#
+
+plot3<-read.csv("outputs/plot_data/appendix_50q30_new_new.csv", stringsAsFactors = F)%>%
   select(-X)%>%mutate(FDC = "Without aspirin")%>%
-  bind_rows(., read.csv("outputs/plot_data/appendix_50q30_aspirin.csv", stringsAsFactors = F)%>%
+  bind_rows(., read.csv("outputs/plot_data/appendix_50q30_aspirin_new_new.csv", stringsAsFactors = F)%>%
               select(-X)%>%mutate(FDC = "With aspirin"))%>%
   mutate(intervention = factor(intervention, levels = c("Business as usual", "Alt Scenario 1", "Scenario 4", "Scenario 5")))
 

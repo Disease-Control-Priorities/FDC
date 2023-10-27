@@ -192,10 +192,26 @@ rm(output2)
 #Tables and figures
 #########################################################################
 
-inc_adjust<-read.csv("cvd_events_region.csv", stringsAsFactors = F)%>%
-  left_join(., read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-              select(wb_region, location_gbd)%>%
-              rename(location = location_gbd))
+groups<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+  select(wb2021, location_gbd)%>%
+  rename(location = location_gbd)
+
+
+inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+  select(wb2021, location_wb, location_gbd)%>%
+  rename(Country = location_gbd)%>%
+  right_join(., read.csv("new_events.csv", stringsAsFactors = F))%>%
+  group_by(wb2021)%>%
+  summarise(MI_ratio = mean(MI_ratio),
+            stroke_ratio = mean(stroke_ratio),
+            HF_ratio = mean(HF_ratio))%>%
+  na.omit()
+
+inc_adjust<-inc_adjust%>%
+  bind_rows(., inc_adjust%>%filter(wb2021 == "LMIC")%>%
+              mutate(wb2021 = "LIC"))%>%
+  left_join(., groups)
+
 
 table1<-output%>%
   filter(cause!="hhd")%>%
@@ -211,7 +227,7 @@ table1<-output%>%
             All_deaths = sum(all.mx)/3)%>%
   filter(year==2020 & intervention=="Baseline" | year==2050)
 
-write.csv(table1, "outputs/Table2_0723.csv")
+write.csv(table1, "outputs/Table2_new_new.csv")
 
 table1_b<-output%>%
   filter(cause!="hhd", year==2050)%>%
@@ -225,7 +241,7 @@ table1_b<-output%>%
             Prevalence = sum(sick),
             CVD_deaths = sum(dead))
 
-write.csv(table1_b, "outputs/Table2_b_0723.csv")
+write.csv(table1_b, "outputs/Table2_b_new_new.csv")
 
 table2<-output%>%
   filter(cause!="hhd")%>%
@@ -245,14 +261,14 @@ table2<-output%>%
          `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
   select(-Baseline)
 
-write.csv(table2, "outputs/cumulative_results_0723.csv")
+write.csv(table2, "outputs/cumulative_results_new_new.csv")
 
 table3<-output%>%
   filter(cause!="hhd")%>%
   group_by(intervention)%>%
   summarise(All.cause.deaths = sum(all.mx)/3)
 
-write.csv(table3, "outputs/allcauseMX_0723.csv")
+write.csv(table3, "outputs/allcauseMX_new_new.csv")
 
 #############################
 #Calculate 50q30
@@ -301,10 +317,6 @@ all_50q30<-all_50q30%>%group_by(year, intervention)%>%
 
 all_50q30<-all_50q30%>%mutate(intervention = ifelse(intervention=="Baseline", "Business as usual", intervention))
 
-all_50q30<-all_50q30%>%
-  filter(intervention%in%c("Business as usual", "Alt Scenario 1", "Scenario 4", "Scenario 5"))%>%
-  mutate(intervention = factor(intervention, levels = c("Business as usual", "Alt Scenario 1", "Scenario 4", "Scenario 5")))
-
 ggplot(all_50q30, 
        aes(x=year, y=x50q30, color=intervention))+
   geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
@@ -319,7 +331,7 @@ ggplot(all_50q30,
 
 #ggsave("outputs/alt_Figure1_appendix.jpeg", height=4, width=6)
 
-write.csv(all_50q30, "outputs/plot_data/appendix_50q30.csv")
+write.csv(all_50q30, "outputs/plot_data/appendix_50q30_new_new.csv")
 
 
 #WB_50q30<-read.csv("outputs/plot_data/Fig1_data.csv", stringsAsFactors = F)
@@ -337,9 +349,9 @@ ggplot(WB_50q30%>%filter(intervention!="Scenario 5", intervention!="Alt Scenario
   theme(axis.text.x = element_text(angle=45))+
   scale_color_viridis(discrete = T) 
 
-#ggsave("outputs/Figure1_0723.jpeg", height=4, width=9)
+#ggsave("outputs/Figure1_new_new.jpeg", height=4, width=9)
 
-write.csv(WB_50q30, "outputs/plot_data/Fig1_data.csv", row.names=F)
+write.csv(WB_50q30, "outputs/plot_data/Fig1_data_new_new.csv", row.names=F)
 
 
 ##################figure 2
@@ -398,8 +410,8 @@ ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative death
   ylab("Cumulative cases/deaths averted (millions)")+
   scale_fill_viridis(discrete = T) 
 
-#ggsave("outputs/Figure2_area_0723.jpeg", height=4, width=9)
-write.csv(plot, "outputs/plot_data/Fig2_data.csv", row.names = F)
+#ggsave("outputs/Figure2_area_new_new.jpeg", height=4, width=9)
+write.csv(plot, "outputs/plot_data/Fig2_data_new_new.csv", row.names = F)
 
 ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative deaths averted")), 
        aes(x=year, y=value/1e6))+
@@ -410,3 +422,4 @@ ggplot(plot%>%filter(metric %in% c("Cumulative cases averted", "Cumulative death
   xlab("Year")+
   ylab("Cumulative cases/deaths averted (millions)")+
   scale_fill_viridis(discrete = T) 
+

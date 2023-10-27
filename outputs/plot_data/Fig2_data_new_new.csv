@@ -1,0 +1,681 @@
+"year","metric","Intervention","value"
+2017,"Cumulative cases averted","Scenario 1",0
+2017,"Cumulative deaths averted","Scenario 1",0
+2017,"Heart failure averted","Scenario 1",0
+2017,"MI averted","Scenario 1",0
+2017,"Stroke averted","Scenario 1",0
+2018,"Cumulative cases averted","Scenario 1",0
+2018,"Cumulative deaths averted","Scenario 1",0
+2018,"Heart failure averted","Scenario 1",0
+2018,"MI averted","Scenario 1",0
+2018,"Stroke averted","Scenario 1",0
+2019,"Cumulative cases averted","Scenario 1",0
+2019,"Cumulative deaths averted","Scenario 1",0
+2019,"Heart failure averted","Scenario 1",0
+2019,"MI averted","Scenario 1",0
+2019,"Stroke averted","Scenario 1",0
+2020,"Cumulative cases averted","Scenario 1",0
+2020,"Cumulative deaths averted","Scenario 1",0
+2020,"Heart failure averted","Scenario 1",0
+2020,"MI averted","Scenario 1",0
+2020,"Stroke averted","Scenario 1",0
+2021,"Cumulative cases averted","Scenario 1",0
+2021,"Cumulative deaths averted","Scenario 1",0
+2021,"Heart failure averted","Scenario 1",0
+2021,"MI averted","Scenario 1",0
+2021,"Stroke averted","Scenario 1",0
+2022,"Cumulative cases averted","Scenario 1",0
+2022,"Cumulative deaths averted","Scenario 1",0
+2022,"Heart failure averted","Scenario 1",0
+2022,"MI averted","Scenario 1",0
+2022,"Stroke averted","Scenario 1",0
+2023,"Cumulative cases averted","Scenario 1",26486.4252340049
+2023,"Cumulative deaths averted","Scenario 1",9297.43759101257
+2023,"Heart failure averted","Scenario 1",3689.05565290805
+2023,"MI averted","Scenario 1",13010.5436434411
+2023,"Stroke averted","Scenario 1",9786.82593765669
+2024,"Cumulative cases averted","Scenario 1",84595.8765996695
+2024,"Cumulative deaths averted","Scenario 1",29991.0683910884
+2024,"Heart failure averted","Scenario 1",11676.2599513736
+2024,"MI averted","Scenario 1",41621.9996485747
+2024,"Stroke averted","Scenario 1",31297.6169997156
+2025,"Cumulative cases averted","Scenario 1",178735.367235258
+2025,"Cumulative deaths averted","Scenario 1",63810.3198715411
+2025,"Heart failure averted","Scenario 1",24487.896296287
+2025,"MI averted","Scenario 1",88074.6551079899
+2025,"Stroke averted","Scenario 1",66172.8158309646
+2026,"Cumulative cases averted","Scenario 1",313398.494161099
+2026,"Cumulative deaths averted","Scenario 1",112506.580483042
+2026,"Heart failure averted","Scenario 1",42662.7653318234
+2026,"MI averted","Scenario 1",154653.41139587
+2026,"Stroke averted","Scenario 1",116082.317433383
+2027,"Cumulative cases averted","Scenario 1",493384.504878744
+2027,"Cumulative deaths averted","Scenario 1",177950.29612799
+2027,"Heart failure averted","Scenario 1",66776.6839550044
+2027,"MI averted","Scenario 1",243798.039395165
+2027,"Stroke averted","Scenario 1",182809.781528555
+2028,"Cumulative cases averted","Scenario 1",723776.458514892
+2028,"Cumulative deaths averted","Scenario 1",262141.50126965
+2028,"Heart failure averted","Scenario 1",97433.7702581892
+2028,"MI averted","Scenario 1",358095.234008711
+2028,"Stroke averted","Scenario 1",268247.45424797
+2029,"Cumulative cases averted","Scenario 1",1009977.05353387
+2029,"Cumulative deaths averted","Scenario 1",367236.593594845
+2029,"Heart failure averted","Scenario 1",135269.101806501
+2029,"MI averted","Scenario 1",500295.13061611
+2029,"Stroke averted","Scenario 1",374412.821111247
+2030,"Cumulative cases averted","Scenario 1",1357665.31876368
+2030,"Cumulative deaths averted","Scenario 1",495510.737124659
+2030,"Heart failure averted","Scenario 1",180943.615628102
+2030,"MI averted","Scenario 1",673296.003314354
+2030,"Stroke averted","Scenario 1",503425.699821208
+2031,"Cumulative cases averted","Scenario 1",1772850.43180818
+2031,"Cumulative deaths averted","Scenario 1",649388.247142833
+2031,"Heart failure averted","Scenario 1",235150.6399016
+2031,"MI averted","Scenario 1",880168.390789669
+2031,"Stroke averted","Scenario 1",657531.401116893
+2032,"Cumulative cases averted","Scenario 1",2261741.15710454
+2032,"Cumulative deaths averted","Scenario 1",831385.149461742
+2032,"Heart failure averted","Scenario 1",298597.984829613
+2032,"MI averted","Scenario 1",1124094.38089486
+2032,"Stroke averted","Scenario 1",839048.791380048
+2033,"Cumulative cases averted","Scenario 1",2830584.77100425
+2033,"Cumulative deaths averted","Scenario 1",1044046.85798818
+2033,"Heart failure averted","Scenario 1",371982.6114444
+2033,"MI averted","Scenario 1",1408294.90220866
+2033,"Stroke averted","Scenario 1",1050307.25735117
+2034,"Cumulative cases averted","Scenario 1",3485501.26671022
+2034,"Cumulative deaths averted","Scenario 1",1289904.77338549
+2034,"Heart failure averted","Scenario 1",455962.850694614
+2034,"MI averted","Scenario 1",1735950.66248453
+2034,"Stroke averted","Scenario 1",1293587.75353106
+2035,"Cumulative cases averted","Scenario 1",4232757.71004011
+2035,"Cumulative deaths averted","Scenario 1",1571510.92656426
+2035,"Heart failure averted","Scenario 1",551207.251676736
+2035,"MI averted","Scenario 1",2110340.82872609
+2035,"Stroke averted","Scenario 1",1571209.62963727
+2036,"Cumulative cases averted","Scenario 1",5078615.9836902
+2036,"Cumulative deaths averted","Scenario 1",1891393.65628308
+2036,"Heart failure averted","Scenario 1",658366.422086631
+2036,"MI averted","Scenario 1",2534776.01317205
+2036,"Stroke averted","Scenario 1",1885473.54843152
+2037,"Cumulative cases averted","Scenario 1",6028774.85526109
+2037,"Cumulative deaths averted","Scenario 1",2251948.80407777
+2037,"Heart failure averted","Scenario 1",777976.519505163
+2037,"MI averted","Scenario 1",3012324.5658535
+2037,"Stroke averted","Scenario 1",2238473.76990243
+2038,"Cumulative cases averted","Scenario 1",7074798.78104641
+2038,"Cumulative deaths averted","Scenario 1",2652506.97547999
+2038,"Heart failure averted","Scenario 1",908157.229846327
+2038,"MI averted","Scenario 1",3539179.08216042
+2038,"Stroke averted","Scenario 1",2627462.46903966
+2039,"Cumulative cases averted","Scenario 1",8215101.78436157
+2039,"Cumulative deaths averted","Scenario 1",3093875.47000298
+2039,"Heart failure averted","Scenario 1",1048171.29731597
+2039,"MI averted","Scenario 1",4114910.53445065
+2039,"Stroke averted","Scenario 1",3052019.95259497
+2040,"Cumulative cases averted","Scenario 1",9454278.93137327
+2040,"Cumulative deaths averted","Scenario 1",3578162.64877061
+2040,"Heart failure averted","Scenario 1",1198310.34071978
+2040,"MI averted","Scenario 1",4742153.04754801
+2040,"Stroke averted","Scenario 1",3513815.54310548
+2041,"Cumulative cases averted","Scenario 1",10796449.8061711
+2041,"Cumulative deaths averted","Scenario 1",4107408.88604442
+2041,"Heart failure averted","Scenario 1",1358788.22195807
+2041,"MI averted","Scenario 1",5423292.31624658
+2041,"Stroke averted","Scenario 1",4014369.26796647
+2042,"Cumulative cases averted","Scenario 1",12234653.8568594
+2042,"Cumulative deaths averted","Scenario 1",4681060.83192343
+2042,"Heart failure averted","Scenario 1",1528200.87454689
+2042,"MI averted","Scenario 1",6154957.97477416
+2042,"Stroke averted","Scenario 1",4551495.00753841
+2043,"Cumulative cases averted","Scenario 1",13766735.9642537
+2043,"Cumulative deaths averted","Scenario 1",5299730.84807589
+2043,"Heart failure averted","Scenario 1",1705928.4790595
+2043,"MI averted","Scenario 1",6936134.30642347
+2043,"Stroke averted","Scenario 1",5124673.1787707
+2044,"Cumulative cases averted","Scenario 1",15391722.0658197
+2044,"Cumulative deaths averted","Scenario 1",5964276.09135324
+2044,"Heart failure averted","Scenario 1",1891568.85405299
+2044,"MI averted","Scenario 1",7766359.47174598
+2044,"Stroke averted","Scenario 1",5733793.7400207
+2045,"Cumulative cases averted","Scenario 1",17112440.0387531
+2045,"Cumulative deaths averted","Scenario 1",6676244.8688483
+2045,"Heart failure averted","Scenario 1",2085418.75570583
+2045,"MI averted","Scenario 1",8646989.29344891
+2045,"Stroke averted","Scenario 1",6380031.98959832
+2046,"Cumulative cases averted","Scenario 1",18924244.739052
+2046,"Cumulative deaths averted","Scenario 1",7432699.44680401
+2046,"Heart failure averted","Scenario 1",2286811.14343844
+2046,"MI averted","Scenario 1",9576206.26765746
+2046,"Stroke averted","Scenario 1",7061227.32795606
+2047,"Cumulative cases averted","Scenario 1",20822892.512555
+2047,"Cumulative deaths averted","Scenario 1",8231353.22809808
+2047,"Heart failure averted","Scenario 1",2495247.18785197
+2047,"MI averted","Scenario 1",10552046.6585386
+2047,"Stroke averted","Scenario 1",7775598.66616437
+2048,"Cumulative cases averted","Scenario 1",22797274.5993748
+2048,"Cumulative deaths averted","Scenario 1",9065689.90589099
+2048,"Heart failure averted","Scenario 1",2709159.02518312
+2048,"MI averted","Scenario 1",11569952.7477318
+2048,"Stroke averted","Scenario 1",8518162.8264599
+2049,"Cumulative cases averted","Scenario 1",24834851.0335763
+2049,"Cumulative deaths averted","Scenario 1",9928603.51483118
+2049,"Heart failure averted","Scenario 1",2926790.57157366
+2049,"MI averted","Scenario 1",12624675.4303828
+2049,"Stroke averted","Scenario 1",9283385.03161985
+2050,"Cumulative cases averted","Scenario 1",26904527.3217752
+2050,"Cumulative deaths averted","Scenario 1",10801090.1148759
+2050,"Heart failure averted","Scenario 1",3143985.1881792
+2050,"MI averted","Scenario 1",13703350.1361819
+2050,"Stroke averted","Scenario 1",10057191.9974141
+2017,"Cumulative cases averted","Scenario 2",0
+2017,"Cumulative deaths averted","Scenario 2",0
+2017,"Heart failure averted","Scenario 2",0
+2017,"MI averted","Scenario 2",0
+2017,"Stroke averted","Scenario 2",0
+2018,"Cumulative cases averted","Scenario 2",0
+2018,"Cumulative deaths averted","Scenario 2",0
+2018,"Heart failure averted","Scenario 2",0
+2018,"MI averted","Scenario 2",0
+2018,"Stroke averted","Scenario 2",0
+2019,"Cumulative cases averted","Scenario 2",0
+2019,"Cumulative deaths averted","Scenario 2",0
+2019,"Heart failure averted","Scenario 2",0
+2019,"MI averted","Scenario 2",0
+2019,"Stroke averted","Scenario 2",0
+2020,"Cumulative cases averted","Scenario 2",0
+2020,"Cumulative deaths averted","Scenario 2",0
+2020,"Heart failure averted","Scenario 2",0
+2020,"MI averted","Scenario 2",0
+2020,"Stroke averted","Scenario 2",0
+2021,"Cumulative cases averted","Scenario 2",0
+2021,"Cumulative deaths averted","Scenario 2",0
+2021,"Heart failure averted","Scenario 2",0
+2021,"MI averted","Scenario 2",0
+2021,"Stroke averted","Scenario 2",0
+2022,"Cumulative cases averted","Scenario 2",0
+2022,"Cumulative deaths averted","Scenario 2",0
+2022,"Heart failure averted","Scenario 2",0
+2022,"MI averted","Scenario 2",0
+2022,"Stroke averted","Scenario 2",0
+2023,"Cumulative cases averted","Scenario 2",47560.3601141274
+2023,"Cumulative deaths averted","Scenario 2",19114.313535247
+2023,"Heart failure averted","Scenario 2",5204.52279058658
+2023,"MI averted","Scenario 2",24765.7999103963
+2023,"Stroke averted","Scenario 2",17590.0374131426
+2024,"Cumulative cases averted","Scenario 2",150914.499920927
+2024,"Cumulative deaths averted","Scenario 2",61170.9269332215
+2024,"Heart failure averted","Scenario 2",16402.5462788418
+2024,"MI averted","Scenario 2",78586.7272141129
+2024,"Stroke averted","Scenario 2",55925.2264279705
+2025,"Cumulative cases averted","Scenario 2",318748.077512331
+2025,"Cumulative deaths averted","Scenario 2",129777.401240189
+2025,"Heart failure averted","Scenario 2",34512.9750351673
+2025,"MI averted","Scenario 2",165995.924377065
+2025,"Stroke averted","Scenario 2",118239.1781001
+2026,"Cumulative cases averted","Scenario 2",560352.169935368
+2026,"Cumulative deaths averted","Scenario 2",228752.499852363
+2026,"Heart failure averted","Scenario 2",60524.816024255
+2026,"MI averted","Scenario 2",291846.448016502
+2026,"Stroke averted","Scenario 2",207980.905894609
+2027,"Cumulative cases averted","Scenario 2",885987.78405039
+2027,"Cumulative deaths averted","Scenario 2",362300.381046709
+2027,"Heart failure averted","Scenario 2",95532.5157238608
+2027,"MI averted","Scenario 2",461498.970006295
+2027,"Stroke averted","Scenario 2",328956.298320225
+2028,"Cumulative cases averted","Scenario 2",1306970.97769055
+2028,"Cumulative deaths averted","Scenario 2",535058.998537648
+2028,"Heart failure averted","Scenario 2",140741.522646753
+2028,"MI averted","Scenario 2",680867.227988265
+2028,"Stroke averted","Scenario 2",485362.227055522
+2029,"Cumulative cases averted","Scenario 2",1835640.89122271
+2029,"Cumulative deaths averted","Scenario 2",752133.591784935
+2029,"Heart failure averted","Scenario 2",197455.905715248
+2029,"MI averted","Scenario 2",956399.822209302
+2029,"Stroke averted","Scenario 2",681785.163298151
+2030,"Cumulative cases averted","Scenario 2",2484243.8978903
+2030,"Cumulative deaths averted","Scenario 2",1018795.87507758
+2030,"Heart failure averted","Scenario 2",266893.171807759
+2030,"MI averted","Scenario 2",1294548.21082843
+2030,"Stroke averted","Scenario 2",922802.515254101
+2031,"Cumulative cases averted","Scenario 2",3265682.07759358
+2031,"Cumulative deaths averted","Scenario 2",1340708.64732238
+2031,"Heart failure averted","Scenario 2",350300.721455421
+2031,"MI averted","Scenario 2",1702128.04384964
+2031,"Stroke averted","Scenario 2",1213253.31228851
+2032,"Cumulative cases averted","Scenario 2",4194982.59499275
+2032,"Cumulative deaths averted","Scenario 2",1724152.55361673
+2032,"Heart failure averted","Scenario 2",449222.477498803
+2032,"MI averted","Scenario 2",2187040.45842706
+2032,"Stroke averted","Scenario 2",1558719.65906688
+2033,"Cumulative cases averted","Scenario 2",5288038.54178693
+2033,"Cumulative deaths averted","Scenario 2",2175738.14273169
+2033,"Heart failure averted","Scenario 2",565280.586038916
+2033,"MI averted","Scenario 2",2757669.18138562
+2033,"Stroke averted","Scenario 2",1965088.77436239
+2034,"Cumulative cases averted","Scenario 2",6561287.89450213
+2034,"Cumulative deaths averted","Scenario 2",2702297.12743079
+2034,"Heart failure averted","Scenario 2",700128.199258858
+2034,"MI averted","Scenario 2",3422725.4040789
+2034,"Stroke averted","Scenario 2",2438434.29116436
+2035,"Cumulative cases averted","Scenario 2",8031601.82433198
+2035,"Cumulative deaths averted","Scenario 2",3310807.98563316
+2035,"Heart failure averted","Scenario 2",855447.684991226
+2035,"MI averted","Scenario 2",4191183.19871612
+2035,"Stroke averted","Scenario 2",2984970.94062462
+2036,"Cumulative cases averted","Scenario 2",9715676.06121053
+2036,"Cumulative deaths averted","Scenario 2",4008289.53871185
+2036,"Heart failure averted","Scenario 2",1032802.23669869
+2036,"MI averted","Scenario 2",5072043.82751146
+2036,"Stroke averted","Scenario 2",3610829.99700037
+2037,"Cumulative cases averted","Scenario 2",11630930.2460814
+2037,"Cumulative deaths averted","Scenario 2",4802019.59844537
+2037,"Heart failure averted","Scenario 2",1233786.87012451
+2037,"MI averted","Scenario 2",6074769.70599632
+2037,"Stroke averted","Scenario 2",4322373.6699605
+2038,"Cumulative cases averted","Scenario 2",13792961.6999609
+2038,"Cumulative deaths averted","Scenario 2",5698998.40172459
+2038,"Heart failure averted","Scenario 2",1459603.61385175
+2038,"MI averted","Scenario 2",7208024.2728166
+2038,"Stroke averted","Scenario 2",5125333.81329259
+2039,"Cumulative cases averted","Scenario 2",16217790.393982
+2039,"Cumulative deaths averted","Scenario 2",6706462.71217023
+2039,"Heart failure averted","Scenario 2",1711434.88160763
+2039,"MI averted","Scenario 2",8480771.2595717
+2039,"Stroke averted","Scenario 2",6025584.25280267
+2040,"Cumulative cases averted","Scenario 2",18922178.7700835
+2040,"Cumulative deaths averted","Scenario 2",7832093.14782539
+2040,"Heart failure averted","Scenario 2",1990490.35540226
+2040,"MI averted","Scenario 2",9902396.66296902
+2040,"Stroke averted","Scenario 2",7029291.75171222
+2041,"Cumulative cases averted","Scenario 2",21925315.8118597
+2041,"Cumulative deaths averted","Scenario 2",9084349.58187407
+2041,"Heart failure averted","Scenario 2",2298335.34762408
+2041,"MI averted","Scenario 2",11483475.0376088
+2041,"Stroke averted","Scenario 2",8143505.42662685
+2042,"Cumulative cases averted","Scenario 2",25248352.5555696
+2042,"Cumulative deaths averted","Scenario 2",10472420.1822072
+2042,"Heart failure averted","Scenario 2",2636850.60222934
+2042,"MI averted","Scenario 2",13235466.1485195
+2042,"Stroke averted","Scenario 2",9376035.80482082
+2043,"Cumulative cases averted","Scenario 2",28911311.3172292
+2043,"Cumulative deaths averted","Scenario 2",12005864.8359156
+2043,"Heart failure averted","Scenario 2",3007571.19298241
+2043,"MI averted","Scenario 2",15169313.579653
+2043,"Stroke averted","Scenario 2",10734426.5445938
+2044,"Cumulative cases averted","Scenario 2",32935421.4850103
+2044,"Cumulative deaths averted","Scenario 2",13694809.250435
+2044,"Heart failure averted","Scenario 2",3412149.37852581
+2044,"MI averted","Scenario 2",17296585.8754632
+2044,"Stroke averted","Scenario 2",12226686.2310212
+2045,"Cumulative cases averted","Scenario 2",37344589.5304836
+2045,"Cumulative deaths averted","Scenario 2",15550086.5271545
+2045,"Heart failure averted","Scenario 2",3852658.26337901
+2045,"MI averted","Scenario 2",19630169.0673531
+2045,"Stroke averted","Scenario 2",13861762.1997515
+2046,"Cumulative cases averted","Scenario 2",42157185.0269502
+2046,"Cumulative deaths averted","Scenario 2",17579299.3160081
+2046,"Heart failure averted","Scenario 2",4330525.34887582
+2046,"MI averted","Scenario 2",22180460.7086925
+2046,"Stroke averted","Scenario 2",15646198.9693819
+2047,"Cumulative cases averted","Scenario 2",47382511.0477842
+2047,"Cumulative deaths averted","Scenario 2",19786983.6665663
+2047,"Heart failure averted","Scenario 2",4846563.34803118
+2047,"MI averted","Scenario 2",24952359.8861103
+2047,"Stroke averted","Scenario 2",17583587.8136428
+2048,"Cumulative cases averted","Scenario 2",53031779.3954708
+2048,"Cumulative deaths averted","Scenario 2",22176632.0827072
+2048,"Heart failure averted","Scenario 2",5401081.10585923
+2048,"MI averted","Scenario 2",27953466.5141414
+2048,"Stroke averted","Scenario 2",19677231.7754701
+2049,"Cumulative cases averted","Scenario 2",59111247.2899415
+2049,"Cumulative deaths averted","Scenario 2",24748510.1339512
+2049,"Heart failure averted","Scenario 2",5993686.18665356
+2049,"MI averted","Scenario 2",31189457.0755199
+2049,"Stroke averted","Scenario 2",21928104.027768
+2050,"Cumulative cases averted","Scenario 2",65601436.0140262
+2050,"Cumulative deaths averted","Scenario 2",27486997.2736628
+2050,"Heart failure averted","Scenario 2",6620538.8003987
+2050,"MI averted","Scenario 2",34655423.4465914
+2050,"Stroke averted","Scenario 2",24325473.7670361
+2017,"Cumulative cases averted","Scenario 3",0
+2017,"Cumulative deaths averted","Scenario 3",0
+2017,"Heart failure averted","Scenario 3",0
+2017,"MI averted","Scenario 3",0
+2017,"Stroke averted","Scenario 3",0
+2018,"Cumulative cases averted","Scenario 3",0
+2018,"Cumulative deaths averted","Scenario 3",0
+2018,"Heart failure averted","Scenario 3",0
+2018,"MI averted","Scenario 3",0
+2018,"Stroke averted","Scenario 3",0
+2019,"Cumulative cases averted","Scenario 3",0
+2019,"Cumulative deaths averted","Scenario 3",0
+2019,"Heart failure averted","Scenario 3",0
+2019,"MI averted","Scenario 3",0
+2019,"Stroke averted","Scenario 3",0
+2020,"Cumulative cases averted","Scenario 3",0
+2020,"Cumulative deaths averted","Scenario 3",0
+2020,"Heart failure averted","Scenario 3",0
+2020,"MI averted","Scenario 3",0
+2020,"Stroke averted","Scenario 3",0
+2021,"Cumulative cases averted","Scenario 3",0
+2021,"Cumulative deaths averted","Scenario 3",0
+2021,"Heart failure averted","Scenario 3",0
+2021,"MI averted","Scenario 3",0
+2021,"Stroke averted","Scenario 3",0
+2022,"Cumulative cases averted","Scenario 3",0
+2022,"Cumulative deaths averted","Scenario 3",0
+2022,"Heart failure averted","Scenario 3",0
+2022,"MI averted","Scenario 3",0
+2022,"Stroke averted","Scenario 3",0
+2023,"Cumulative cases averted","Scenario 3",34402.2610977367
+2023,"Cumulative deaths averted","Scenario 3",11838.1881581694
+2023,"Heart failure averted","Scenario 3",4840.843879872
+2023,"MI averted","Scenario 3",16901.2437620722
+2023,"Stroke averted","Scenario 3",12660.1734557971
+2024,"Cumulative cases averted","Scenario 3",112068.585658155
+2024,"Cumulative deaths averted","Scenario 3",39153.5161202364
+2024,"Heart failure averted","Scenario 3",15492.5312773446
+2024,"MI averted","Scenario 3",55292.2310752608
+2024,"Stroke averted","Scenario 3",41283.8233055566
+2025,"Cumulative cases averted","Scenario 3",240848.842172258
+2025,"Cumulative deaths averted","Scenario 3",85067.5278694034
+2025,"Heart failure averted","Scenario 3",32819.2096301503
+2025,"MI averted","Scenario 3",119263.622827016
+2025,"Stroke averted","Scenario 3",88766.0097151008
+2026,"Cumulative cases averted","Scenario 3",428890.109725609
+2026,"Cumulative deaths averted","Scenario 3",152800.091848873
+2026,"Heart failure averted","Scenario 3",57723.9845000319
+2026,"MI averted","Scenario 3",213057.849810343
+2026,"Stroke averted","Scenario 3",158108.275415247
+2027,"Cumulative cases averted","Scenario 3",685006.815872625
+2027,"Cumulative deaths averted","Scenario 3",245830.578951214
+2027,"Heart failure averted","Scenario 3",91188.2210862897
+2027,"MI averted","Scenario 3",341259.604535874
+2027,"Stroke averted","Scenario 3",252558.990250481
+2028,"Cumulative cases averted","Scenario 3",1018707.62861744
+2028,"Cumulative deaths averted","Scenario 3",367933.145250533
+2028,"Heart failure averted","Scenario 3",134265.423385143
+2028,"MI averted","Scenario 3",508815.812151134
+2028,"Stroke averted","Scenario 3",375626.393081179
+2029,"Cumulative cases averted","Scenario 3",1440346.12776311
+2029,"Cumulative deaths averted","Scenario 3",523247.930291168
+2029,"Heart failure averted","Scenario 3",188098.239281905
+2029,"MI averted","Scenario 3",721109.758622669
+2029,"Stroke averted","Scenario 3",531138.129858566
+2030,"Cumulative cases averted","Scenario 3",1960980.23791077
+2030,"Cumulative deaths averted","Scenario 3",716216.679850411
+2030,"Heart failure averted","Scenario 3",253894.465975011
+2030,"MI averted","Scenario 3",983903.882495407
+2030,"Stroke averted","Scenario 3",723181.889440374
+2031,"Cumulative cases averted","Scenario 3",2591710.34298979
+2031,"Cumulative deaths averted","Scenario 3",951373.884563036
+2031,"Heart failure averted","Scenario 3",332873.603624435
+2031,"MI averted","Scenario 3",1302946.69651974
+2031,"Stroke averted","Scenario 3",955890.042845631
+2032,"Cumulative cases averted","Scenario 3",3344581.1890919
+2032,"Cumulative deaths averted","Scenario 3",1233624.78098521
+2032,"Heart failure averted","Scenario 3",426346.684345762
+2032,"MI averted","Scenario 3",1684499.71888222
+2032,"Stroke averted","Scenario 3",1233734.78586394
+2033,"Cumulative cases averted","Scenario 3",4230754.41713071
+2033,"Cumulative deaths averted","Scenario 3",1567836.29881474
+2033,"Heart failure averted","Scenario 3",535389.408749727
+2033,"MI averted","Scenario 3",2134475.11990592
+2033,"Stroke averted","Scenario 3",1560889.88847509
+2034,"Cumulative cases averted","Scenario 3",5260327.55178966
+2034,"Cumulative deaths averted","Scenario 3",1958048.40953052
+2034,"Heart failure averted","Scenario 3",661024.244049828
+2034,"MI averted","Scenario 3",2658265.0813513
+2034,"Stroke averted","Scenario 3",1941038.22638855
+2035,"Cumulative cases averted","Scenario 3",6442171.37883682
+2035,"Cumulative deaths averted","Scenario 3",2407986.01883012
+2035,"Heart failure averted","Scenario 3",804166.31472685
+2035,"MI averted","Scenario 3",3260522.25277412
+2035,"Stroke averted","Scenario 3",2377482.81133587
+2036,"Cumulative cases averted","Scenario 3",7755272.45758425
+2036,"Cumulative deaths averted","Scenario 3",2908664.49629569
+2036,"Heart failure averted","Scenario 3",962975.610850648
+2036,"MI averted","Scenario 3",3929769.52248641
+2036,"Stroke averted","Scenario 3",2862527.32424721
+2037,"Cumulative cases averted","Scenario 3",9171732.21275773
+2037,"Cumulative deaths averted","Scenario 3",3445952.83168619
+2037,"Heart failure averted","Scenario 3",1133173.7983236
+2037,"MI averted","Scenario 3",4654349.70364948
+2037,"Stroke averted","Scenario 3",3384208.71078468
+2038,"Cumulative cases averted","Scenario 3",10677980.4564033
+2038,"Cumulative deaths averted","Scenario 3",4016808.98598259
+2038,"Heart failure averted","Scenario 3",1312222.61927664
+2038,"MI averted","Scenario 3",5428033.25495068
+2038,"Stroke averted","Scenario 3",3937724.58217602
+2039,"Cumulative cases averted","Scenario 3",12264838.1104817
+2039,"Cumulative deaths averted","Scenario 3",4617427.93329219
+2039,"Heart failure averted","Scenario 3",1498599.17928895
+2039,"MI averted","Scenario 3",6246884.03437991
+2039,"Stroke averted","Scenario 3",4519354.89681286
+2040,"Cumulative cases averted","Scenario 3",13931840.0798472
+2040,"Cumulative deaths averted","Scenario 3",5247887.05214681
+2040,"Heart failure averted","Scenario 3",1691874.13987605
+2040,"MI averted","Scenario 3",7111160.05667314
+2040,"Stroke averted","Scenario 3",5128805.88329799
+2041,"Cumulative cases averted","Scenario 3",15684322.6084111
+2041,"Cumulative deaths averted","Scenario 3",5911262.05535942
+2041,"Heart failure averted","Scenario 3",1892281.86348764
+2041,"MI averted","Scenario 3",8023874.4723663
+2041,"Stroke averted","Scenario 3",5768166.27255712
+2042,"Cumulative cases averted","Scenario 3",17521626.5685439
+2042,"Cumulative deaths averted","Scenario 3",6608736.98187693
+2042,"Heart failure averted","Scenario 3",2099252.90287642
+2042,"MI averted","Scenario 3",8984976.37788149
+2042,"Stroke averted","Scenario 3",6437397.28778596
+2043,"Cumulative cases averted","Scenario 3",19428345.9636509
+2043,"Cumulative deaths averted","Scenario 3",7333341.36610733
+2043,"Heart failure averted","Scenario 3",2310418.06499514
+2043,"MI averted","Scenario 3",9987762.84991114
+2043,"Stroke averted","Scenario 3",7130165.04874459
+2044,"Cumulative cases averted","Scenario 3",21392786.6379678
+2044,"Cumulative deaths averted","Scenario 3",8078754.22538277
+2044,"Heart failure averted","Scenario 3",2524209.96301329
+2044,"MI averted","Scenario 3",11027128.4373485
+2044,"Stroke averted","Scenario 3",7841448.237606
+2045,"Cumulative cases averted","Scenario 3",23408968.766748
+2045,"Cumulative deaths averted","Scenario 3",8841171.52429065
+2045,"Heart failure averted","Scenario 3",2739760.06649951
+2045,"MI averted","Scenario 3",12100756.0422167
+2045,"Stroke averted","Scenario 3",8568452.65803178
+2046,"Cumulative cases averted","Scenario 3",25471877.2931888
+2046,"Cumulative deaths averted","Scenario 3",9616508.40175531
+2046,"Heart failure averted","Scenario 3",2956077.09252896
+2046,"MI averted","Scenario 3",13207407.0818559
+2046,"Stroke averted","Scenario 3",9308393.1188039
+2047,"Cumulative cases averted","Scenario 3",27590100.3209098
+2047,"Cumulative deaths averted","Scenario 3",10406644.5069366
+2047,"Heart failure averted","Scenario 3",3172564.79334712
+2047,"MI averted","Scenario 3",14354460.0716736
+2047,"Stroke averted","Scenario 3",10063075.4558891
+2048,"Cumulative cases averted","Scenario 3",29739972.6739485
+2048,"Cumulative deaths averted","Scenario 3",11202391.4467132
+2048,"Heart failure averted","Scenario 3",3386266.05111175
+2048,"MI averted","Scenario 3",15530055.8117721
+2048,"Stroke averted","Scenario 3",10823650.8110646
+2049,"Cumulative cases averted","Scenario 3",31907313.3809098
+2049,"Cumulative deaths averted","Scenario 3",11999029.333732
+2049,"Heart failure averted","Scenario 3",3595799.8761262
+2049,"MI averted","Scenario 3",16726220.1092152
+2049,"Stroke averted","Scenario 3",11585293.3955683
+2050,"Cumulative cases averted","Scenario 3",34104925.7391857
+2050,"Cumulative deaths averted","Scenario 3",12805814.7329937
+2050,"Heart failure averted","Scenario 3",3803547.37461672
+2050,"MI averted","Scenario 3",17946735.7074061
+2050,"Stroke averted","Scenario 3",12354642.6571628
+2017,"Cumulative cases averted","Scenario 4",0
+2017,"Cumulative deaths averted","Scenario 4",0
+2017,"Heart failure averted","Scenario 4",0
+2017,"MI averted","Scenario 4",0
+2017,"Stroke averted","Scenario 4",0
+2018,"Cumulative cases averted","Scenario 4",0
+2018,"Cumulative deaths averted","Scenario 4",0
+2018,"Heart failure averted","Scenario 4",0
+2018,"MI averted","Scenario 4",0
+2018,"Stroke averted","Scenario 4",0
+2019,"Cumulative cases averted","Scenario 4",0
+2019,"Cumulative deaths averted","Scenario 4",0
+2019,"Heart failure averted","Scenario 4",0
+2019,"MI averted","Scenario 4",0
+2019,"Stroke averted","Scenario 4",0
+2020,"Cumulative cases averted","Scenario 4",0
+2020,"Cumulative deaths averted","Scenario 4",0
+2020,"Heart failure averted","Scenario 4",0
+2020,"MI averted","Scenario 4",0
+2020,"Stroke averted","Scenario 4",0
+2021,"Cumulative cases averted","Scenario 4",0
+2021,"Cumulative deaths averted","Scenario 4",0
+2021,"Heart failure averted","Scenario 4",0
+2021,"MI averted","Scenario 4",0
+2021,"Stroke averted","Scenario 4",0
+2022,"Cumulative cases averted","Scenario 4",0
+2022,"Cumulative deaths averted","Scenario 4",0
+2022,"Heart failure averted","Scenario 4",0
+2022,"MI averted","Scenario 4",0
+2022,"Stroke averted","Scenario 4",0
+2023,"Cumulative cases averted","Scenario 4",81220.0738112479
+2023,"Cumulative deaths averted","Scenario 4",31035.9452655725
+2023,"Heart failure averted","Scenario 4",9838.56625061855
+2023,"MI averted","Scenario 4",41348.8410362527
+2023,"Stroke averted","Scenario 4",30032.6665243749
+2024,"Cumulative cases averted","Scenario 4",264504.122325398
+2024,"Cumulative deaths averted","Scenario 4",101942.475678194
+2024,"Heart failure averted","Scenario 4",31725.2990909079
+2024,"MI averted","Scenario 4",134859.63535985
+2024,"Stroke averted","Scenario 4",97919.1878746375
+2025,"Cumulative cases averted","Scenario 4",570069.179663524
+2025,"Cumulative deaths averted","Scenario 4",220922.193660133
+2025,"Heart failure averted","Scenario 4",67840.8232302563
+2025,"MI averted","Scenario 4",291083.472728785
+2025,"Stroke averted","Scenario 4",211144.88370448
+2026,"Cumulative cases averted","Scenario 4",1019759.11106765
+2026,"Cumulative deaths averted","Scenario 4",396754.784949757
+2026,"Heart failure averted","Scenario 4",120558.441402481
+2026,"MI averted","Scenario 4",521421.236703362
+2026,"Stroke averted","Scenario 4",377779.432961795
+2027,"Cumulative cases averted","Scenario 4",1633602.5466698
+2027,"Cumulative deaths averted","Scenario 4",638240.513919223
+2027,"Heart failure averted","Scenario 4",191806.86144118
+2027,"MI averted","Scenario 4",836462.036198311
+2027,"Stroke averted","Scenario 4",605333.649030302
+2028,"Cumulative cases averted","Scenario 4",2436487.21841469
+2028,"Cumulative deaths averted","Scenario 4",955686.429829691
+2028,"Heart failure averted","Scenario 4",284183.269965066
+2028,"MI averted","Scenario 4",1249260.6385064
+2028,"Stroke averted","Scenario 4",903043.309943222
+2029,"Cumulative cases averted","Scenario 4",3455626.49954177
+2029,"Cumulative deaths averted","Scenario 4",1360356.73967343
+2029,"Heart failure averted","Scenario 4",400580.955231856
+2029,"MI averted","Scenario 4",1774010.75358021
+2029,"Stroke averted","Scenario 4",1281034.7907297
+2030,"Cumulative cases averted","Scenario 4",4716908.43227226
+2030,"Cumulative deaths averted","Scenario 4",1863640.40063731
+2030,"Heart failure averted","Scenario 4",543524.672281095
+2030,"MI averted","Scenario 4",2424345.27196305
+2030,"Stroke averted","Scenario 4",1749038.48802809
+2031,"Cumulative cases averted","Scenario 4",6238517.89592024
+2031,"Cumulative deaths averted","Scenario 4",2473917.84998425
+2031,"Heart failure averted","Scenario 4",714779.510706817
+2031,"MI averted","Scenario 4",3209727.56307125
+2031,"Stroke averted","Scenario 4",2314010.82214216
+2032,"Cumulative cases averted","Scenario 4",7967467.69329817
+2032,"Cumulative deaths averted","Scenario 4",3168666.4280255
+2032,"Heart failure averted","Scenario 4",907637.028936407
+2032,"MI averted","Scenario 4",4104386.04024324
+2032,"Stroke averted","Scenario 4",2955444.62411851
+2033,"Cumulative cases averted","Scenario 4",9871389.03549179
+2033,"Cumulative deaths averted","Scenario 4",3936533.71601865
+2033,"Heart failure averted","Scenario 4",1116463.14349927
+2033,"MI averted","Scenario 4",5094165.77570017
+2033,"Stroke averted","Scenario 4",3660760.11629235
+2034,"Cumulative cases averted","Scenario 4",11947724.0433282
+2034,"Cumulative deaths averted","Scenario 4",4779607.25793559
+2034,"Heart failure averted","Scenario 4",1339488.46077289
+2034,"MI averted","Scenario 4",6179015.90320467
+2034,"Stroke averted","Scenario 4",4429219.67935063
+2035,"Cumulative cases averted","Scenario 4",14201569.6884152
+2035,"Cumulative deaths averted","Scenario 4",5702059.19237295
+2035,"Heart failure averted","Scenario 4",1576443.63005177
+2035,"MI averted","Scenario 4",7362171.50039772
+2035,"Stroke averted","Scenario 4",5262954.55796574
+2036,"Cumulative cases averted","Scenario 4",16661621.4754771
+2036,"Cumulative deaths averted","Scenario 4",6720348.3322944
+2036,"Heart failure averted","Scenario 4",1828339.16115468
+2036,"MI averted","Scenario 4",8660250.37767129
+2036,"Stroke averted","Scenario 4",6173031.93665109
+2037,"Cumulative cases averted","Scenario 4",19352312.0744888
+2037,"Cumulative deaths averted","Scenario 4",7847235.42801924
+2037,"Heart failure averted","Scenario 4",2097266.81108511
+2037,"MI averted","Scenario 4",10085904.4084082
+2037,"Stroke averted","Scenario 4",7169140.85499541
+2038,"Cumulative cases averted","Scenario 4",22291017.0670471
+2038,"Cumulative deaths averted","Scenario 4",9086579.07266361
+2038,"Heart failure averted","Scenario 4",2384550.38867799
+2038,"MI averted","Scenario 4",11650113.8293422
+2038,"Stroke averted","Scenario 4",8256352.84902696
+2039,"Cumulative cases averted","Scenario 4",25500418.0645012
+2039,"Cumulative deaths averted","Scenario 4",10446289.4896376
+2039,"Heart failure averted","Scenario 4",2691937.08025002
+2039,"MI averted","Scenario 4",13366230.2175154
+2039,"Stroke averted","Scenario 4",9442250.76673576
+2040,"Cumulative cases averted","Scenario 4",28994869.3042751
+2040,"Cumulative deaths averted","Scenario 4",11930525.2955261
+2040,"Heart failure averted","Scenario 4",3020117.69946445
+2040,"MI averted","Scenario 4",15243628.4105532
+2040,"Stroke averted","Scenario 4",10731123.1942575
+2041,"Cumulative cases averted","Scenario 4",32763554.5355832
+2041,"Cumulative deaths averted","Scenario 4",13534023.8490392
+2041,"Heart failure averted","Scenario 4",3367436.19065131
+2041,"MI averted","Scenario 4",17277713.2647189
+2041,"Stroke averted","Scenario 4",12118405.0802129
+2042,"Cumulative cases averted","Scenario 4",36798813.0700121
+2042,"Cumulative deaths averted","Scenario 4",15253738.7943655
+2042,"Heart failure averted","Scenario 4",3732680.85445568
+2042,"MI averted","Scenario 4",19465064.8549252
+2042,"Stroke averted","Scenario 4",13601067.3606312
+2043,"Cumulative cases averted","Scenario 4",41115109.8201409
+2043,"Cumulative deaths averted","Scenario 4",17097569.8067075
+2043,"Heart failure averted","Scenario 4",4117376.98103441
+2043,"MI averted","Scenario 4",21812613.6115538
+2043,"Stroke averted","Scenario 4",15185119.2275527
+2044,"Cumulative cases averted","Scenario 4",45717538.9122095
+2044,"Cumulative deaths averted","Scenario 4",19069091.8053453
+2044,"Heart failure averted","Scenario 4",4521981.92532492
+2044,"MI averted","Scenario 4",24322661.4781843
+2044,"Stroke averted","Scenario 4",16872895.5087003
+2045,"Cumulative cases averted","Scenario 4",50606892.2690405
+2045,"Cumulative deaths averted","Scenario 4",21170708.9615515
+2045,"Heart failure averted","Scenario 4",4946607.28274277
+2045,"MI averted","Scenario 4",26994890.9721908
+2045,"Stroke averted","Scenario 4",18665394.0141069
+2046,"Cumulative cases averted","Scenario 4",55779533.7048253
+2046,"Cumulative deaths averted","Scenario 4",23402230.2984382
+2046,"Heart failure averted","Scenario 4",5390624.60913164
+2046,"MI averted","Scenario 4",29827345.7773327
+2046,"Stroke averted","Scenario 4",20561563.3183609
+2047,"Cumulative cases averted","Scenario 4",61235435.3887023
+2047,"Cumulative deaths averted","Scenario 4",25763929.2587612
+2047,"Heart failure averted","Scenario 4",5853834.00944658
+2047,"MI averted","Scenario 4",32820222.82774
+2047,"Stroke averted","Scenario 4",22561378.5515157
+2048,"Cumulative cases averted","Scenario 4",66955264.6595999
+2048,"Cumulative deaths averted","Scenario 4",28240779.5238266
+2048,"Heart failure averted","Scenario 4",6333423.54470897
+2048,"MI averted","Scenario 4",35966941.0536087
+2048,"Stroke averted","Scenario 4",24654900.0612822
+2049,"Cumulative cases averted","Scenario 4",72913377.8052447
+2049,"Cumulative deaths averted","Scenario 4",30818043.6429693
+2049,"Heart failure averted","Scenario 4",6826522.67074513
+2049,"MI averted","Scenario 4",39255715.3756022
+2049,"Stroke averted","Scenario 4",26831139.7588974
+2050,"Cumulative cases averted","Scenario 4",79062575.5053658
+2050,"Cumulative deaths averted","Scenario 4",33471078.4324978
+2050,"Heart failure averted","Scenario 4",7327487.30723038
+2050,"MI averted","Scenario 4",42664592.0207644
+2050,"Stroke averted","Scenario 4",29070496.177371

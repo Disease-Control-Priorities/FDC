@@ -174,13 +174,13 @@ drops <- c("all", "b_rates", "cfr", "df", "inc", "names", "p", "project.all",
            "pop20", "test", "wpp.adj", "time1", "time2", "i", "countrylist")
 rm(list = c(drops,"drops"))
 
-save.image(file = "output_aspirin2.Rda")
+save.image(file = "output_aspirin2_new.Rda")
 
 #######################################################################
 #Tables and figures
 #######################################################################
 
-load("output_aspirin2.Rda")
+load("output_aspirin2_new.Rda")
 
 pop<-output2%>%filter(year==2019, intervention=="Baseline")%>%
   group_by(location)%>%summarise(Nx = sum(pop, na.rm = T))
@@ -203,7 +203,27 @@ pop<-output2%>%filter(year==2019, intervention=="Baseline")%>%
 #               select(wb_region, location_gbd)%>%
 #               rename(location = location_gbd))%>%
 #  select(-wb_region)
-inc_adjust<-read.csv("cvd_events3.csv", stringsAsFactors = F)
+
+groups<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+  select(wb2021, location_gbd)%>%
+  rename(location = location_gbd)
+  
+
+inc_adjust<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+    select(wb2021, location_wb, location_gbd)%>%
+    rename(Country = location_gbd)%>%
+  right_join(., read.csv("new_events.csv", stringsAsFactors = F))%>%
+  group_by(wb2021)%>%
+  summarise(MI_ratio = mean(MI_ratio),
+            stroke_ratio = mean(stroke_ratio),
+            HF_ratio = mean(HF_ratio))%>%
+  na.omit()
+
+inc_adjust<-inc_adjust%>%
+  bind_rows(., inc_adjust%>%filter(wb2021 == "LMIC")%>%
+              mutate(wb2021 = "LIC"))%>%
+  left_join(., groups)
+
 
 table1<-output2%>%
   filter(cause!="hhd")%>%
@@ -219,7 +239,7 @@ table1<-output2%>%
             All_deaths = sum(all.mx)/3)%>%
   filter(year==2020 & intervention=="Baseline" | year==2050)
 
-write.csv(table1, "outputs/Table2_aspirin_new.csv")
+write.csv(table1, "outputs/Table2_aspirin_new_new.csv")
 
 table1_b<-output2%>%
   filter(cause!="hhd", year==2050)%>%
@@ -233,7 +253,7 @@ table1_b<-output2%>%
             Prevalence = sum(sick),
             CVD_deaths = sum(dead))
 
-write.csv(table1_b, "outputs/Table2_b_aspirin_new.csv")
+write.csv(table1_b, "outputs/Table2_b_aspirin_new_new.csv")
 
 table2<-output2%>%
   filter(cause!="hhd")%>%
@@ -253,14 +273,14 @@ table2<-output2%>%
          `Scenario 4` = signif((Baseline- `Scenario 4`), 2))%>%
   select(-Baseline)
 
-write.csv(table2, "outputs/cumulative_resuts_aspirin_new.csv")
+write.csv(table2, "outputs/cumulative_resuts_aspirin_new_new.csv")
 
 table3<-output2%>%
   filter(cause!="hhd")%>%
   group_by(intervention)%>%
   summarise(All.cause.deaths = sum(all.mx)/3)
 
-write.csv(table3, "outputs/allcauseMX_aspirin_new.csv")
+write.csv(table3, "outputs/allcauseMX_aspirin_new_new.csv")
 
 #############################
 #Calculate 50q30
