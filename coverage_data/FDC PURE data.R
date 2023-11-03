@@ -531,8 +531,8 @@ targets<-merge(x = c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3", "Scen
                y = c("ihd", "hhd", "istroke", "hstroke"))%>%
   rename(intervention = x, cause =y)%>%
   mutate(PP_eff = ifelse(cause == "ihd", 1-0.59,
-                         ifelse(cause=="istroke", 1-0.55,
-                                ifelse(cause=="hstroke", 1-0.66,0))),
+                         ifelse(cause=="istroke", 1-0.66,
+                                ifelse(cause=="hstroke", 1-0.47,0))),
          SP_eff = ifelse(cause == "ihd", 1-0.576,
                          ifelse(cause=="istroke", 1-0.576,0)),
          cov_inc = ifelse(intervention == "Baseline", 0,
