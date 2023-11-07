@@ -1,5 +1,6 @@
 library(shiny)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(viridis)
 library(shinydashboard)
@@ -37,6 +38,12 @@ ui <- fluidPage(
             h5(strong("Download disaggregated data:")),
             downloadButton("downloadData", "Download data"),
             br(),br(),
+            h5(strong("Download Primary prevention figure:")),
+            downloadButton("downloadPlot2", "Download plot"),
+            br(),br(),
+            h5(strong("Download Secondary prevention figure:")),
+            downloadButton("downloadPlot3", "Download plot"),
+            br(),br(),
             h5(strong("Download Figure 1:")),
             downloadButton("downloadPlot", "Download plot"),
             br(),br(),
@@ -48,9 +55,9 @@ ui <- fluidPage(
         mainPanel(
           tabsetPanel(type = "tabs",
           tabPanel("Coverage", 
-                   h4(strong("Figure 1."), "Cascade of care for primary prevetion"),
+                   h4("Cascade of care for primary prevetion"),
                    plotOutput("plot2"),
-                   h4(strong("Figure 2."), "Cascade of care for secondary prevetion"),
+                   h4("Cascade of care for secondary prevetion"),
                    plotOutput("plot3")),
           tabPanel("Results",
            h4(strong("Figure 1."), "Cumulative CVD events and deaths averted by FDCs over 2023-2030 compared to maintaining current care"),
@@ -139,7 +146,7 @@ server <- function(input, output) {
         
       }
       
-      ggplot(plot2, aes(x=year, y=val, color=scenario))+
+      p<-ggplot(plot2, aes(x=year, y=val, color=scenario))+
         geom_line(size=1)+
         facet_wrap(~Metric)+
         ylab("Proportion of all primary prevention patients")+
@@ -149,13 +156,16 @@ server <- function(input, output) {
         theme_bw()+
         theme(text = element_text(size=15))
       
+      rv$p3<-p
+      p
+      
       
     })
     
     output$plot3 <- renderPlot({
       
       if(input$country == "All locations"){
-        plot3<-cov_pp%>%group_by(year,scenario)%>%
+        plot3<-cov_sp%>%group_by(year,scenario)%>%
           summarise(Control = mean(Control),
                     Treated = mean(Treated),
                     Aware = mean(Aware))%>%
@@ -176,7 +186,7 @@ server <- function(input, output) {
         
       }
       
-      ggplot(plot3, aes(x=year, y=val, color=scenario))+
+      p<-ggplot(plot3, aes(x=year, y=val, color=scenario))+
         geom_line(size=1)+
         facet_wrap(~Metric)+
         ylab("Proportion of all secondary prevention patients")+
@@ -185,6 +195,9 @@ server <- function(input, output) {
         labs(color = "Scenario")+
         theme_bw()+
         theme(text = element_text(size=15))
+      
+      rv$p4<-p
+      p
       
       
     })
@@ -286,10 +299,24 @@ server <- function(input, output) {
     )
     
     output$downloadPlot <- downloadHandler(
-        filename = function() { paste(input$country, '.png', sep='') },
+        filename = function() { paste(input$country, '_figure1.png', sep='') },
         content = function(file) {
             ggsave(file, plot = rv$p2, device = "png", height = 6, width=8)
         }
+    )
+    
+    output$downloadPlot2 <- downloadHandler(
+      filename = function() { paste(input$country, '_pp_cov.png', sep='') },
+      content = function(file) {
+        ggsave(file, plot = rv$p3, device = "png", height = 4, width=8)
+      }
+    )
+    
+    output$downloadPlot3 <- downloadHandler(
+      filename = function() { paste(input$country, '_sp_cov.png', sep='') },
+      content = function(file) {
+        ggsave(file, plot = rv$p4, device = "png", height = 4, width=8)
+      }
     )
 }
 
