@@ -1373,7 +1373,6 @@ ggplot(plot, aes(x=year, y=Control, groups=location_name))+
   xlab("Year")+
   ylab("Primary prevention effective coverage")
 
-
 ggsave("../outputs/new_coverage.jpeg", width=10, height=4)
 
 ggplot(plot, aes(x=year, y=Treated, groups=location_name))+
@@ -1396,7 +1395,7 @@ ggplot(plot, aes(x=year, y=Aware, groups=location_name))+
 
 ggsave("../outputs/new_coverage_aware.jpeg", width=10, height=4)
 
-#cascade bar chart:
+#cascade line plot:
 plot2<-plot%>%group_by(year,scenario)%>%
   summarise(Control = mean(Control),
             Treated = mean(Treated),
@@ -1416,6 +1415,7 @@ ggplot(plot2, aes(x=year, y=val, color=scenario))+
 
 ggsave("../outputs/cascade.jpeg", height=4, width=8)
 write.csv(plot, "../cascade_data_trt.csv", row.names = F)
+write.csv(plot, "../shiny/FDC/cascade_data_trt.csv", row.names = F)
 
 #SP
 plot<-bind_rows(baselineSP%>%mutate(scenario="Baseline"),
@@ -1435,7 +1435,7 @@ ggplot(plot, aes(x=year, y=Control, groups=location_name))+
   xlab("Year")+
   ylab("Secondary prevention effective coverage")
 
-
+write.csv(plot, "../shiny/FDC/cascade_data_SP.csv", row.names = F)
 ggsave("../outputs/new_coverage_SP.jpeg", width=10, height=4)
 
 

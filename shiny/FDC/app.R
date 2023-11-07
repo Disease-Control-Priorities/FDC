@@ -10,6 +10,8 @@ library(DT)
 df<-read.csv("for_download.csv", stringsAsFactors = F)
 plot_df<-read.csv("plot_data.csv", stringsAsFactors = F)
 locs<-unique(df$location)
+cov_sp<-read.csv("cascade_data_SP.csv", stringsAsFactors = F)
+cov_pp<-read.csv("cascade_data_trt.csv", stringsAsFactors = F)
 
 #significant digit formatter function
 so_formatter <- function(x) {
@@ -45,16 +47,21 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
           tabsetPanel(type = "tabs",
+          tabPanel("Coverage", 
+                   h4(strong("Figure 1."), "Cascade of care for primary prevetion"),
+                   plotOutput("plot2"),
+                   h4(strong("Figure 2."), "Cascade of care for secondary prevetion"),
+                   plotOutput("plot3")),
           tabPanel("Results",
-           h4(strong("Figure 1."), "Worldwide cumulative CVD events and deaths averted by FDCs over 2023-2030 compared to maintaining current care."),
+           h4(strong("Figure 1."), "Cumulative CVD events and deaths averted by FDCs over 2023-2030 compared to maintaining current care"),
            plotOutput("plot1"),
-           h5(em("Note: Worldwide cumulative CVD events are the aggregate of 
+           h5(em("Note: Cumulative CVD events are the aggregate of 
            nonfatal myocardial infarction, stroke, and heart failure events.
            'FDC with aspirin' refers to a primary 
               prevention FDC containing aspirin; secondary prevention 
               FDCs are assumed to contain aspirin.")),
            br(),
-           h4(strong("Table 2."), "Worldwide impact of FDCs in the year 2050 as compared to maintaining current care over 2020-2050."),
+           h4(strong("Table 2."), "Impact of FDCs in the year 2050 as compared to maintaining current care over 2020-2050"),
            formattableOutput("table2"),
            h5(em("Note: 'CVD events' are reported as the population-level aggregate 
               of acute episodes of nonfatal myocardial infarction, stroke, and heart 
@@ -66,8 +73,7 @@ ui <- fluidPage(
               primary prevention FDC containing aspirin; secondary prevention FDCs are 
               assumed to contain aspirin. See table 1 for details of each of the four 
               scenarios."))
-          ),
-          tabPanel("Coverage", )
+          )
         ) #tabsetPanel
         ) #mainPanel
     ) #sidebarLayout
@@ -101,11 +107,86 @@ server <- function(input, output) {
             xlim(2023,2050)+
             xlab("Year")+
             ylab("Cumulative CVD events/deaths averted")+
-            scale_fill_viridis(discrete = T)  
+            scale_fill_viridis(discrete = T)+
+            theme(text = element_text(size=15))
         
         rv$p2<-p
         p
         
+    })
+    
+    output$plot2 <- renderPlot({
+      
+      if(input$country == "All locations"){
+      plot2<-cov_pp%>%group_by(year,scenario)%>%
+        summarise(Control = mean(Control),
+                  Treated = mean(Treated),
+                  Aware = mean(Aware))%>%
+        gather(Metric, val, -year, -scenario)%>%
+        mutate(Metric = factor(Metric, levels=c("Aware", "Treated", "Control")),
+               scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Baseline")))
+      }
+      
+      else{
+        plot2<-cov_pp%>%filter(location_name == input$country)%>%
+          group_by(year,scenario)%>%
+          summarise(Control = mean(Control),
+                    Treated = mean(Treated),
+                    Aware = mean(Aware))%>%
+          gather(Metric, val, -year, -scenario)%>%
+          mutate(Metric = factor(Metric, levels=c("Aware", "Treated", "Control")),
+                 scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Baseline")))
+        
+      }
+      
+      ggplot(plot2, aes(x=year, y=val, color=scenario))+
+        geom_line(size=1)+
+        facet_wrap(~Metric)+
+        ylab("Proportion of all primary prevention patients")+
+        xlab("Year")+
+        ylim(0,1)+
+        labs(color = "Scenario")+
+        theme_bw()+
+        theme(text = element_text(size=15))
+      
+      
+    })
+    
+    output$plot3 <- renderPlot({
+      
+      if(input$country == "All locations"){
+        plot3<-cov_pp%>%group_by(year,scenario)%>%
+          summarise(Control = mean(Control),
+                    Treated = mean(Treated),
+                    Aware = mean(Aware))%>%
+          gather(Metric, val, -year, -scenario)%>%
+          mutate(Metric = factor(Metric, levels=c("Aware", "Treated", "Control")),
+                 scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Baseline")))
+      }
+      
+      else{
+        plot3<-cov_sp%>%filter(location_name == input$country)%>%
+          group_by(year,scenario)%>%
+          summarise(Control = mean(Control),
+                    Treated = mean(Treated),
+                    Aware = mean(Aware))%>%
+          gather(Metric, val, -year, -scenario)%>%
+          mutate(Metric = factor(Metric, levels=c("Aware", "Treated", "Control")),
+                 scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Baseline")))
+        
+      }
+      
+      ggplot(plot3, aes(x=year, y=val, color=scenario))+
+        geom_line(size=1)+
+        facet_wrap(~Metric)+
+        ylab("Proportion of all secondary prevention patients")+
+        xlab("Year")+
+        ylim(0,1)+
+        labs(color = "Scenario")+
+        theme_bw()+
+        theme(text = element_text(size=15))
+      
+      
     })
     
     output$table2<-renderFormattable({
