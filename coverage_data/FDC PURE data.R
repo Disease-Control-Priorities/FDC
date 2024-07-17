@@ -1401,8 +1401,12 @@ plot2<-plot%>%group_by(year,scenario)%>%
             Treated = mean(Treated),
             Aware = mean(Aware))%>%
   gather(Metric, val, -year, -scenario)%>%
-  mutate(Metric = factor(Metric, levels=c("Aware", "Treated", "Control")),
-         scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Baseline")))
+  mutate(Metric = ifelse(Metric=="Treated", "On treatment", Metric),
+         Metric = ifelse(Metric=="Control", "Optimized", Metric),
+         scenario = ifelse(scenario=="Baseline", "Current care", scenario))%>%
+  mutate(Metric = factor(Metric, levels=c("Aware", "On treatment", "Optimized")),
+         scenario = factor(scenario, levels=c("Scenario 4", "Scenario 3", "Scenario 2", "Scenario 1", "Current care")))
+
 
 ggplot(plot2, aes(x=year, y=val, color=scenario))+
   geom_line(size=1)+

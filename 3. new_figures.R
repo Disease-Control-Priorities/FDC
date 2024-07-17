@@ -1,6 +1,197 @@
 rm(list=ls())
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer)   
+pacman::p_load(data.table, dplyr, tidyr, ggplot2, RColorBrewer, countrycode)   
+
+#coverage, events
+inc<-read.csv("cascade_data_trt.csv", stringsAsFactors = F)%>%
+  filter(scenario %in% c("Scenario 2", "Scenario 3", "Scenario 4"))%>%
+  select(-Treated, -Control)%>%
+  spread(scenario, Aware)%>%
+  mutate(`Scenario 3` = `Scenario 3` - `Scenario 2`,
+         `Scenario 4` = `Scenario 4` - `Scenario 2`)%>%
+  select(-`Scenario 2`)%>%
+  gather(intervention, cov, -location_name, -year)%>%
+  mutate(iso3 = countrycode::countrycode(location_name, "country.name", "iso3c"))
+
+any(is.na(inc))
+
+locs<-read.csv("coverage_data/Country_groupings_extended.csv", stringsAsFactors = F)%>%
+  select(gbd2019, iso3, wb2021, location_gbd, location_ncdrisc, wbregion)%>%
+  rename(location = location_gbd)
+
+inc<-left_join(inc, locs%>%select(iso3, location))
+
+isos<-unique(locs$iso3)
+
+#PIN, age 55-79
+load("output2.Rda")
+load("output_aspirin2.Rda")
+
+pop<-output%>%filter(age>=55 & age<80, intervention %in% c("Scenario 3", "Scenario 4"))%>%
+  group_by(sex, year, location, intervention)%>%
+  summarise(pop= sum(pop)/4,
+            cvd = sum(sick))%>%
+  mutate(regimen = "No aspirin")%>%bind_rows(., output2%>%
+  filter(age>=55 & age<80, intervention %in% c("Scenario 3", "Scenario 4"))%>%
+  group_by(sex, year, location, intervention)%>%
+  summarise(pop= sum(pop)/4,
+            cvd = sum(sick))%>%
+    mutate(regimen = "Aspirin"))%>%
+  na.omit()
+
+############
+# 70q0 all cause
+#############
+
+pop<-read_xlsx("WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx", skip=16, 
+               col_types = c("numeric", "text", "text", 
+                             "text", "text", "text", "text",
+                             "text", "text", "text", "numeric",
+                             rep("numeric", 101)))%>% #WPP pop estimates for age 0-20
+  select(-Index , -Variant, -Notes, -`Location code`, -`ISO2 Alpha-code`, 
+         -`SDMX code**`, -Type, -`Parent code`, -`Region, subregion, country or area *`)%>%
+  gather(age, pop, -Year, -`ISO3 Alpha-code`)%>%
+  rename(iso3 = `ISO3 Alpha-code`, year=Year)%>%
+  filter(iso3 %in% isos)%>%
+  left_join(., locs%>%select(iso3, location, wbregion))%>%
+  select(-iso3)%>%
+  filter(year<=2050 & year>=2020)%>%
+  mutate(age = as.numeric(age))%>%
+  filter(age<20)
+
+mx1<-read.csv("WPP2024_DeathsBySingleAgeSex_Medium_1950-2023.csv", stringsAsFactors = F)%>%
+  filter(Time %in% c(2020:2023), AgeGrpStart<20, ISO3_code %in% isos)%>%
+  select(iso3 = ISO3_code, dead= DeathTotal, year=Time, age = AgeGrpStart)
+
+mx2<-read.csv("WPP2024_DeathsBySingleAgeSex_Medium_1950-2023.csv", stringsAsFactors = F)%>%
+  filter(Time %in% c(2024:2050), AgeGrpStart<20, ISO3_code %in% isos)%>%
+  select(iso3 = ISO3_code, dead= DeathTotal, year=Time, age = AgeGrpStart)
+
+add<-bind_rows(mx1, mx2)%>%
+  left_join(., pop)%>%
+  left_join(., locs%>%select(iso3, location, wbregion))%>%
+  select(-iso3)%>%
+  merge(., data.frame(intervention = c("Current care", "Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4")))%>%
+  merge(., data.frame(regimen = c("No aspirin", "Aspirin")))
+
+any(is.na(add))
+
+comb<-bind_rows(output%>%mutate(regimen = "No aspirin"), output2%>%mutate(regimen = "Aspirin"))%>%
+  bind_rows(., output2%>%filter(intervention=="Baseline")%>%mutate(regimen = "No aspirin"))%>%
+  left_join(., locs%>%select(location, wbregion))%>%
+  mutate(intervention = ifelse(intervention=="Baseline", "Current care", intervention))
+
+CVD<-comb%>%filter(cause=="ihd")%>% #doesn't matter which
+  group_by(age, wbregion, year, intervention, regimen)%>%
+  filter(age<70)%>%summarise(pop=sum(pop), dead=sum(all.mx))%>% 
+  bind_rows(., add)
+
+CVD$age.group<-NA
+CVD$age.group[CVD$age>=0 & CVD$age<5]<-"0-4"
+CVD$age.group[CVD$age>=5 & CVD$age<10]<-"5-9"
+CVD$age.group[CVD$age>=10 & CVD$age<15]<-"10-14"
+CVD$age.group[CVD$age>=15 & CVD$age<20]<-"15-19"
+CVD$age.group[CVD$age>=20 & CVD$age<25]<-"20-24"
+CVD$age.group[CVD$age>=25 & CVD$age<30]<-"25-29"
+CVD$age.group[CVD$age>=30 & CVD$age<35]<-"30-34"
+CVD$age.group[CVD$age>=35 & CVD$age<40]<-"35-39"
+CVD$age.group[CVD$age>=40 & CVD$age<45]<-"40-44"
+CVD$age.group[CVD$age>=45 & CVD$age<50]<-"45-49"
+CVD$age.group[CVD$age>=50 & CVD$age<55]<-"50-54"
+CVD$age.group[CVD$age>=55 & CVD$age<60]<-"55-59"
+CVD$age.group[CVD$age>=60 & CVD$age<65]<-"60-64"
+CVD$age.group[CVD$age>=65 & CVD$age<70]<-"65-69"
+
+WB_50q30<-CVD%>%group_by(age.group,  wbregion, year, intervention, regimen)%>%
+  summarise(pop=sum(pop), dead=sum(dead))
+WB_50q30$mx<-WB_50q30$dead/WB_50q30$pop
+any(is.na(WB_50q30))
+
+WB_50q30<-WB_50q30%>%group_by(wbregion, year, intervention, regimen)%>%
+  summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
+
+
+ggplot(WB_50q30%>%filter(intervention!="Baseline", year>=2020), 
+       aes(x=year, y=x50q30, color=intervention, linetype=regimen))+
+  #geom_line()+
+  geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
+  facet_wrap(~wbregion, nrow=1)+
+  labs(color="Scenario", linetype="Regimen")+
+  xlim(2020,2050)+
+  ylab("70q0")+
+  xlab("Year")+
+  theme_bw()+
+  ylim(0,0.5)+
+  scale_linetype_manual(values=c("solid", "twodash"))+
+  theme(axis.text.x = element_text(angle=45))+
+  scale_color_viridis(discrete = T) 
+
+ggsave("plot_70q0.jpeg", height=6, width=12)
+write.csv(WB_50q30%>%filter(intervention!="Baseline"), "data_70q0.csv", row.names = F)
+
+
+### 50q30 ####
+CVD<-comb%>%filter(cause=="ihd")%>%
+  group_by(age, sex, location, wbregion, year, intervention, regimen)%>%
+  filter(age>=30 & age<80)%>%summarise(pop=sum(pop), dead=sum(all.mx)) #divide pop by 3 to avoid over counting for each cause
+
+CVD$age.group<-NA
+CVD$age.group[CVD$age>=30 & CVD$age<35]<-"30-34"
+CVD$age.group[CVD$age>=35 & CVD$age<40]<-"35-39"
+CVD$age.group[CVD$age>=40 & CVD$age<45]<-"40-44"
+CVD$age.group[CVD$age>=45 & CVD$age<50]<-"45-49"
+CVD$age.group[CVD$age>=50 & CVD$age<55]<-"50-54"
+CVD$age.group[CVD$age>=55 & CVD$age<60]<-"55-59"
+CVD$age.group[CVD$age>=60 & CVD$age<65]<-"60-64"
+CVD$age.group[CVD$age>=65 & CVD$age<70]<-"65-69"
+CVD$age.group[CVD$age>=70 & CVD$age<75]<-"70-74"
+CVD$age.group[CVD$age>=75 & CVD$age<80]<-"75-79"
+
+WB_50q30<-CVD%>%group_by(age.group,  wbregion, year, intervention, regimen)%>%
+  summarise(pop=sum(pop), dead=sum(dead))
+WB_50q30$mx<-WB_50q30$dead/WB_50q30$pop
+any(is.na(WB_50q30))
+
+WB_50q30<-WB_50q30%>%group_by(wbregion, year, intervention, regimen)%>%
+  summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
+
+
+ggplot(WB_50q30%>%filter(intervention!="Baseline", year>=2020), 
+       aes(x=year, y=x50q30, color=intervention, linetype=regimen))+
+  #geom_line()+
+  geom_smooth(method = "loess", span=0.5, se=FALSE, width=0.5)+
+  facet_wrap(~wbregion, nrow=1)+
+  labs(color="Scenario", linetype="Regimen")+
+  xlim(2020,2050)+
+  ylab("50q30")+
+  xlab("Year")+
+  ylim(0,0.7)+
+  theme_bw()+
+  scale_linetype_manual(values=c("solid", "twodash"))+
+  theme(axis.text.x = element_text(angle=45))+
+  scale_color_viridis(discrete = T) 
+
+ggsave("plot_50q30.jpeg", height=6, width=12)
+write.csv(WB_50q30%>%filter(intervention!="Baseline"), "data_50q30.csv", row.names = F)
+
+
+rm(data.in)
+rm(output)
+rm(output2)
+rm(comb)
+rm(add)
+
+#PP adverse effects
+adv_pp<-left_join(pop, inc)%>%
+  mutate(no_cvd = pop-cvd)%>%
+  filter(year>=2019)%>%
+  mutate(dizzy = no_cvd*cov*0.025,
+         gi_bleed = no_cvd*cov*0.002)%>%
+  group_by(intervention, regimen)%>%
+  summarise(dizzy = sum(dizzy),
+            gi_bleed = sum(gi_bleed))
+
+write.csv(adv_pp%>%mutate(gi_bleed = ifelse(regimen=="No aspirin", 0, gi_bleed)), "adverse_effects.csv", row.names = F)
 
 #combine plots
 
@@ -131,6 +322,7 @@ ggplot(fig2%>%filter(intervention!="Alt Scenario 1", intervention!="Scenario 5")
 
 ggsave("outputs/new_Figure2.jpeg", height=5, width=9)
 
+
 ## numbers for paper
 
 diffq30<-read.csv("outputs/plot_data/appendix_50q30_new_new.csv", stringsAsFactors = F)%>%
@@ -171,234 +363,56 @@ ggplot(plot3, aes(x=year, y=x50q30, color=intervention, linetype=FDC))+
 #ggsave("outputs/appendix_50q30fig.jpeg", height=4, width=6)
 
 
-#########
-#old
-#########
+## new bubble figure ???
+load("output2.Rda") #output
+load("output_aspirin2.Rda") #output2
 
-load("output2.Rda")
-load("output_aspirin2.Rda")
+plot_new<-output%>%filter(year ==2020 | year==2050)%>%
+  left_join(., locs%>%select(location, wbregion))%>%
+  group_by(year, wbregion, intervention)%>%
+  summarise(dead = sum(dead))%>%
+  mutate(year = ifelse(year==2020, "base", "int"))%>%
+  spread(year, dead)%>%
+  mutate(change = 100*(int-base)/base)
 
-plot<-bind_rows(output%>%
-                  filter(intervention== "Scenario 4", cause!="hhd")%>%
-                  mutate(intervention = "Polypill"),
-                output2%>%
-                  filter(intervention%in%c("Baseline", "Scenario 4"),
-                         cause!="hhd")%>%
-                  mutate(intervention = ifelse(intervention=="Scenario 4", "Polypill w/ aspirin", "Baseline"))
-                )%>%
-  group_by(year, intervention)%>%
-  summarise(Deaths = sum(dead),
-            `New cases` = sum(newcases))
+plot_new2<-output2%>%filter(year ==2020 | year==2050)%>%
+  left_join(., locs%>%select(location, wbregion))%>%
+  group_by(year, wbregion, intervention)%>%
+  summarise(dead = sum(dead))%>%
+  mutate(year = ifelse(year==2020, "base", "int"))%>%
+  spread(year, dead)%>%
+  mutate(change = 100*(int-base)/base)
 
-rm(output)
-rm(output2)
-
-plot2<-plot%>%gather(metric, val, -year, -intervention)
-#change name from Baseline to Business as usual
-#plot2<-read.csv("outputs/plot_data/dpc_data.csv", stringsAsFactors = F)
-plot2$intervention[plot2$intervention=="Baseline"]<-"Business as usual"
-
-ggplot(plot2%>%filter(intervention != "Polypill w/ aspirin"), 
-       aes(x=year, y=val/1e6, color=intervention))+
-  geom_line(aes(linetype=metric), size=1)+
-  theme_bw()+
-  xlab("Year")+
-  ylab("Counts (millions)")+
-  scale_linetype_discrete(name = "Metric") +
-  scale_color_discrete(name = "Scenario") +
-  xlim(2020,2050)
-
-ggsave("outputs/death_prev_counts.jpeg", height=6, width=6)
-
-ggplot(plot2, 
-       aes(x=year, y=val/1e6, color=intervention))+
-  geom_line(aes(linetype=metric), size=1)+
-  theme_bw()+
-  xlab("Year")+
-  ylab("Counts (millions)")+
-  scale_linetype_discrete(name = "Metric") +
-  scale_color_discrete(name = "Scenario") +
-  xlim(2020,2050)
-
-ggsave("outputs/death_prev_counts_aspirin.jpeg", height=6, width=6)
-
-write.csv(plot2, "outputs/plot_data/dpc_data.csv", row.names=F)
-
-#########
-
-load("output_tobacco.Rda")
-
-output3<-output3%>%
-  filter(cause!="hhd")%>%
-  group_by(year, intervention)%>%
-  summarise(Deaths = sum(dead))%>%
-  spread(intervention, Deaths)%>%
-  mutate(`Tobacco taxes and policies` = Baseline - `Tobacco policies and taxes`)%>%
-  select(-Baseline, -`Tobacco policies and taxes`)
+plot_new<-bind_rows(plot_new, plot_new2%>%filter(intervention=="Baseline"))%>%
+  mutate(wbregion = factor(wbregion, levels = c("Europe and Central Asia", "North America",
+                                                "Latin America and the Caribbean", "South Asia",
+                                                "East Asia and Pacific", "Middle East and North Africa",
+                                                "Sub-Saharan Africa")))
   
-any(is.na(output3))
 
-output<-plot%>%
-  select(-`New cases`)%>%
-  spread(intervention, Deaths)%>%
-  mutate(Polypill = Baseline - Polypill,
-        `Polypill w/ aspirin` = Baseline - `Polypill w/ aspirin`)%>%
-  select(-Baseline)%>%
-  left_join(., output3)%>%
-  gather(intervention, DA, -year)
+ggplot(plot_new, aes(x=wbregion, y=change, color=intervention))+
+  geom_point()+
+  ylab("Percent change in CVD deaths (%)")+
+  xlab("")+
+  scale_x_discrete(guide = guide_axis(angle = 45)) +
+  labs(color = "Intervention")+
+  theme_bw()
 
-any(is.na(output))
-
-rm(output3)
-
-load("data_80_80_80/model_output_updated.Rda")
-rm(aspirational)
-
-output4<-progress%>%filter(intervention%in%c("b.a.u", "Antihypertensive therapy"))%>%
-  filter(cause!="hhd")%>%
-  group_by(year, intervention)%>%
-  summarise(Deaths = sum(dead))%>%
-  spread(intervention, Deaths)%>%
-  mutate(DA = `b.a.u` - `Antihypertensive therapy`)%>%
-  mutate(intervention = "Progress (80-80-80)")%>%
-  select(year, DA, intervention)
-
-rm(progress)
-
-## Cumulative deaths averted
-
-plot4<-bind_rows(output, output4)%>%
-  group_by(intervention)%>%
-  arrange(year)%>%
-  mutate(DA = cumsum(DA))%>%
-  mutate(intervention = factor(intervention, 
-    levels = c("Polypill w/ aspirin", "Polypill", "Progress (80-80-80)", "Tobacco taxes and policies")))
-
-any(is.na(plot4))
-unique(plot4$intervention)
-
-ggplot(plot4, aes(x=year, y=DA/1e6, color=intervention))+
-  geom_line(size=1)+
-  theme_bw()+
-  xlim(2020,2050)+
-  scale_color_discrete(name = "Scenario")+
-  xlab("Year")+
-  ylab("Cumulative deaths averted (millions)")+
-  ylim(0,150)
-
-ggsave("outputs/death_averted_cumulative.jpeg", height=6, width=6)
-
-write.csv(plot4, "outputs/plot_data/dac_data.csv", row.names=F)
-
-#########################################################
-
-plot4<-read.csv("outputs/plot_data/dac_data.csv", stringsAsFactors = F)
-
-plot4%>%filter(year==2050)
-
-#########################################################
-# https://data.worldbank.org/indicator/SP.POP.TOTL
-plot5<-read.csv("outputs/plot_data/Fig1_data.csv", stringsAsFactors = F)%>%
-  mutate(pop = ifelse(wb2021=="HIC", 1241374.28,
-                      ifelse(wb2021=="UMIC", 2501427.94,
-                             ifelse(wb2021=="LMIC",3363196.66, 701926.97))))%>%
-  filter(year==2050)%>%
-  group_by(intervention)%>%
-  summarise(x50q30 = weighted.mean(x50q30, pop))
-
-write.csv(plot5, "outputs/world_50q30.csv")
-
-plot5b<-read.csv("outputs/plot_data/Fig1_data_aspririn.csv", stringsAsFactors = F)%>%
-  mutate(pop = ifelse(wb2021=="HIC", 1241374.28,
-                      ifelse(wb2021=="UMIC", 2501427.94,
-                             ifelse(wb2021=="LMIC",3363196.66, 701926.97))))%>%
-  filter(year==2050)%>%
-  group_by(intervention)%>%
-  summarise(x50q30 = weighted.mean(x50q30, pop))
-
-write.csv(plot5b, "outputs/world_50q30_aspirin.csv")
-
-### Appendix figure (new) ###
-load("base_rates.Rda")
-
-##coverage and effects
-inc<-read.csv("scale-up_withaspirin.csv", stringsAsFactors = F)
-
-#updating TPs with new scale-up fxn for those 80+
-#run regression for age 80-94, grouped by year, sex, cause, intervention
-library(purrr)
-library(broom)
-
-reg<-b_rates%>%
-  filter(age>=80 & age<=90)%>%
-  nest(-year, -sex, -cause, -location)%>%
-  mutate(ir_slope = map(data, ~coef(lm(IR~age, data=.x))[["age"]]),
-         cf_slope = map(data, ~coef(lm(CF~age, data=.x))[["age"]]))%>%
-  select(-data)#takes 1-2 minutes
-
-reg$ir_slope<-unlist(reg$ir_slope)
-reg$cf_slope<-unlist(reg$cf_slope)
-
-b_rates<-left_join(b_rates, inc)
-
-b_rates[, PP:=1-(PP_eff*pp.cov.inc)]
-b_rates[, SP:=1-(SP_eff*sp.cov.inc)]
-b_rates[is.na(PP),PP:=1]
-b_rates[is.na(SP),SP:=1]
-
-b_rates<-b_rates[age>=55 & age<80, IR:=IR*PP]
-b_rates<-b_rates[age>=55 & age<80, CF:=CF*SP]
-
-b_rates<-b_rates%>%select(-IRadjust, -CFadjust, -pp.cov.inc, -sp.cov.inc,
-                          -pp_cov, -sp_cov, -PP_eff, -SP_eff,
-                          -PP, -SP)
-
-ggplot(b_rates%>%filter(year==2030, sex=="Female", cause=="ihd", location=="China"), 
-       aes(x=age, y=CF, color=intervention))+
-  geom_line(size=0.8)
-
-Country<-"India"
-
-  intervention_rates<-b_rates[location==Country]%>%
-    left_join(., reg%>%filter(location==Country))%>%
-    arrange(age, year)
-  
-  for(i in 1:16){
-    temp<-intervention_rates[age<=79+i & age>=79+i-1]
-    temp<-temp[, IR_new:=shift(IR)+ir_slope,by=.(year, sex, cause, intervention, location)]
-    temp<-temp[, CF_new:=shift(CF)+cf_slope,by=.(year, sex, cause, intervention, location)]
-    temp<-temp[age==79+i]
-    
-    intervention_rates[age==79+i, IR:=temp[, IR_new]]
-    intervention_rates[age==79+i, CF:=temp[, CF_new]]
-  }
-  
-  
-intervention_rates<-intervention_rates%>%
-  mutate(intervention = ifelse(intervention=="Baseline", "Current care", intervention))
-  
-ggplot(intervention_rates%>%filter(year%in%c(2020,2035,2050), sex=="Female", cause=="ihd"), 
-       aes(x=age, y=CF, color=intervention))+
-  geom_line(size=0.8)+
-  facet_wrap(~year)+
-  ylab("Transition probability \n(IHD to death)")+
-  xlab("Age")+
-  theme_bw()+ 
-  scale_y_sqrt()+
-  labs(color = "Intervention")
-  
-ggsave("outputs/CF_plot_India.jpeg", height=6, width=8)
-  
-  ggplot(intervention_rates%>%filter(year%in%c(2020,2035,2050), sex=="Female", cause=="ihd"), 
-         aes(x=age, y=IR, color=intervention))+
-    geom_line(size=0.8)+
-    facet_wrap(~year)+
-    ylab("Transition probablity \n(Well to IHD)")+
-    xlab("Age")+
-    theme_bw()+ scale_y_sqrt()+
-    labs(color = "Intervention")
-  
-ggsave("outputs/IR_plot_India.jpeg", height=6, width=8)
+ggsave("bubble_plot.jpeg", height=6, width=9)
 
 
-  
+plot_new2<-plot_new2%>%mutate(wbregion = factor(wbregion, levels = c("Europe and Central Asia", "North America",
+                                                                     "Latin America and the Caribbean", "South Asia",
+                                                                     "East Asia and Pacific", "Middle East and North Africa",
+                                                                     "Sub-Saharan Africa")))
+
+
+ggplot(plot_new2, aes(x=wbregion, y=change, color=intervention))+
+  geom_point()+
+  ylab("Percent change in CVD deaths (%)")+
+  xlab("")+
+  scale_x_discrete(guide = guide_axis(angle = 45)) +
+  labs(color = "Intervention")+
+  theme_bw()
+
+ggsave("bubble_plot_aspirin.jpeg", height=6, width=9)

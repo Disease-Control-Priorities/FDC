@@ -273,14 +273,15 @@ write.csv(table3, "outputs/allcauseMX_new_new.csv")
 #############################
 #Calculate 50q30
 groups<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactors = F)%>%
-  select(wb2021, location_gbd)%>%rename(location = location_gbd)
+  select(wb2021, wbregion, location_gbd)%>%rename(location = location_gbd)
 
 comb<-left_join(output, groups, by="location")
 any(is.na(comb$wb2021))
 
 CVD<-comb%>%filter(cause!="hhd")%>%
-  group_by(age, sex, location, wb2021, year, intervention)%>%
+  group_by(age, sex, location, wb2021, wbregion, year, intervention)%>%
   filter(age>=30 & age<80)%>%summarise(pop=sum(pop)/3, dead=sum(dead)) #divide pop by 3 to avoid over counting for each cause
+
 CVD$age.group<-NA
 CVD$age.group[CVD$age>=30 & CVD$age<35]<-"30-34"
 CVD$age.group[CVD$age>=35 & CVD$age<40]<-"35-39"
@@ -303,6 +304,16 @@ WB_50q30<-WB_50q30%>%group_by(wb2021, year, intervention)%>%
   summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
 
 WB_50q30$wb2021<-factor(WB_50q30$wb2021, levels=c("LIC", "LMIC", "UMIC", "HIC"))
+
+
+#by world bank region
+WB_50q30_new<-CVD%>%group_by(age.group,  wbregion, year, intervention)%>%
+  summarise(pop=sum(pop), dead=sum(dead))
+WB_50q30_new$mx<-WB_50q30_new$dead/WB_50q30_new$pop
+any(is.na(WB_50q30_new))
+
+WB_50q30_new<-WB_50q30_new%>%group_by(wbregion, year, intervention)%>%
+  summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
 
 library(viridis)
 
