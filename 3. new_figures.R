@@ -80,7 +80,7 @@ plot1b$newx = str_wrap(plot1b$wbregion, width = 20)
 
 
 #cumulative cases averted bar chart..?
-ggplot(plot1b, aes(x=year, y=val/1e6, fill=Measure))+
+ggplot(plot1b, aes(x=as.factor(year), y=val/1e6, fill=Measure))+
   geom_bar(position="stack", stat="identity")+
   facet_wrap(~newx, nrow = 1)+
   ylab("Cumulative cases averted (millions)")+
@@ -339,4 +339,22 @@ f<-ggplot(data = world2) +
 f
 
 ggsave("outputs/Figure3_population.jpeg", width=11, height=6, dpi=1200)
+
+
+
+#total
+WB_50q30<-CVD%>%group_by(age.group,  year, intervention)%>%
+  summarise(pop=sum(pop), dead=sum(dead))
+
+WB_50q30$mx<-WB_50q30$dead/WB_50q30$pop
+any(is.na(WB_50q30))
+
+WB_50q30<-WB_50q30%>%group_by(year, intervention)%>%
+  summarise(x50q30 = 1-prod(1-(5*mx/(1+2.5*mx))))
+
+outdf<-WB_50q30%>%filter(year==2019 | year==2050)%>%
+  spread(year, x50q30)
+
+write.csv(outdf, "outputs/total_70q0.csv", row.names = F)
+
 
