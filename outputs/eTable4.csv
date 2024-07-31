@@ -1,0 +1,4 @@
+"Scenario","Tobacco.control","Hypertension.treatment","Targeted","Population"
+"Base case",20,53,29,51
+"Best case",20,53,49,100
+"Worst case",20,53,14,29
