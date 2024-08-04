@@ -88,12 +88,51 @@ ggplot(plot1b, aes(x=as.factor(year), y=val/1e6, fill=Measure))+
   theme_bw()+
   scale_fill_manual(values=colors)
 
-ggsave("outputs/Figure1.jpeg", height=6, width=12)
+ggsave("outputs/eFigure1.jpeg", height=6, width=12)
 
 
 # Data for r shiny #
 write.csv(plot1b, "shiny/FDC/plot1_base.csv", row.names = F)
 
+
+
+#Figure 1
+
+fig1<-output%>%
+  filter(cause!="hhd")%>%
+  left_join(., locs)%>%
+  group_by(wbregion, year, intervention)%>%
+  summarise(dead=sum(dead))%>%
+  filter(intervention %in% c("Current care", "Base case, targeted", "Base case, population-wide"))%>%
+  spread(intervention, dead)%>%
+  mutate(target = `Current care` - `Base case, targeted`,
+         pop = `Current care` - `Base case, population-wide`)%>%
+  arrange(year)%>%
+  group_by(wbregion)%>%
+  mutate(Targeted = cumsum(target),
+         Population = cumsum(pop),
+         Population = Population - Targeted)%>%
+  select(-target, -pop, -`Current care`, -`Base case, targeted`, -`Base case, population-wide`)%>%
+  gather(Scenario, val, -year, -wbregion)%>%
+  filter(year %in% c(2040,2045,2050))
+
+fig1$newx = str_wrap(fig1$wbregion, width = 20)
+
+#
+
+ggplot(fig1, aes(x=as.factor(year), y=val/1e6, fill=Scenario))+
+  geom_bar(position="stack", stat="identity")+
+  facet_wrap(~newx, nrow = 1)+
+  ylab("Cumulative deaths averted (millions)")+
+  xlab("Year")+
+  theme_bw()+
+  scale_fill_manual(values=c("#94d2bd", "#0a9396"))
+
+ggsave("outputs/Figure1.jpeg", height=6, width=12)
+
+
+# Data for r shiny #
+write.csv(fig1, "shiny/FDC/plot1_base_deaths.csv", row.names = F)
 
 
 ####################################
