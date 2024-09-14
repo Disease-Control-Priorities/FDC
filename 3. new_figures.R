@@ -15,6 +15,11 @@ groups<-read.csv("data_80_80_80/Country_groupings_extended.csv", stringsAsFactor
   rename(location = location_gbd)
 
 
+##
+# data for shiny
+##
+
+
 ####################################
 #Figure 1
 #################################
@@ -313,26 +318,27 @@ target<-WB_50q30%>%filter(intervention=="Base case, targeted", year==2050)%>%
   left_join(., base)%>%
   mutate(base_diff = 1-(base/base19),
          int_dff = 1-(x50q30/base19),
-         reduction = (int_dff/base_diff)-1)%>%
-  mutate(redux = ifelse(reduction<0.1, "Less than 10%", NA),
-         redux = ifelse(reduction>=0.1 & reduction<=0.15, "10-15%", redux),
-         redux = ifelse(reduction>0.15 & reduction<=0.2, "16-20%", redux),
-         redux = ifelse(reduction>0.2 & reduction<=0.25, "21-25%", redux),
-         redux = ifelse(reduction>0.25, "Greater than 25%", redux))%>%
-  mutate(redux = factor(redux, levels=c("Less than 10%", "10-15%", "16-20%",
-                                        "21-25%", "Greater than 25%")))
+         reduction = (int_dff-base_diff))%>%
+  mutate(redux = ifelse(reduction<0.01, "Less than 1.0%", NA),
+         redux = ifelse(reduction>=0.01 & reduction<0.02, "1.0-1.9%", redux),
+         redux = ifelse(reduction>=0.02 & reduction<0.03, "2.0-2.9%", redux),
+         redux = ifelse(reduction>=0.03 & reduction<0.04, "3.0-3.9%", redux),
+         redux = ifelse(reduction>=0.04, "4.0% or greater", redux))%>%
+  mutate(redux = factor(redux, levels=c("Less than 1.0%", "1.0-1.9%", "2.0-2.9%",
+                                        "3.0-3.9%", "4.0% or greater")))
+
 population<-WB_50q30%>%filter(intervention=="Base case, population-wide", year==2050)%>%
   left_join(., base)%>%
   mutate(base_diff = 1-(base/base19),
          int_dff = 1-(x50q30/base19),
-         reduction = (int_dff/base_diff)-1)%>%
-  mutate(redux = ifelse(reduction<0.1, "Less than 10%", NA),
-         redux = ifelse(reduction>=0.1 & reduction<=0.15, "10-15%", redux),
-         redux = ifelse(reduction>0.15 & reduction<=0.2, "16-20%", redux),
-         redux = ifelse(reduction>0.2 & reduction<=0.25, "21-25%", redux),
-         redux = ifelse(reduction>0.25, "Greater than 25%", redux))%>%
-  mutate(redux = factor(redux, levels=c("Less than 10%", "10-15%", "16-20%",
-                                        "21-25%", "Greater than 25%")))
+         reduction = (int_dff-base_diff))%>%
+  mutate(redux = ifelse(reduction<0.01, "Less than 1.0%", NA),
+         redux = ifelse(reduction>=0.01 & reduction<0.02, "1.0-1.9%", redux),
+         redux = ifelse(reduction>=0.02 & reduction<0.03, "2.0-2.9%", redux),
+         redux = ifelse(reduction>=0.03 & reduction<0.04, "3.0-3.9%", redux),
+         redux = ifelse(reduction>=0.04, "4.0% or greater", redux))%>%
+  mutate(redux = factor(redux, levels=c("Less than 1.0%", "1.0-1.9%", "2.0-2.9%",
+                                        "3.0-3.9%", "4.0% or greater")))
 
 
 #assume same results for south sudan as sudan
@@ -349,12 +355,13 @@ library("rnaturalearthdata")
 world <- ne_countries(scale = "medium", returnclass = "sf")
 world<-left_join(world, target%>%rename(iso_a3 = iso3))
 
+#Reduction in all-cause mortality compared to current care
+
 e<-ggplot(data = world) +
   geom_sf(aes(fill = redux)) +
   theme_bw()+
-  scale_fill_manual(values = c("#2F635A","#b9d780", "#feea83",
-                               "#faa175", "#f8696b","#9B2226"), 
-                    name= "Relative reduction in 70q0 \ncompared to current care")+ 
+  scale_fill_manual(values = c("#f8696b",  "#faa175",  "#feea83","#b9d780", "#2F635A"), 
+                    name= "Reduction in all-cause mortality \ncompared to current care")+ 
   theme(legend.position = "right")
 
 e
@@ -370,9 +377,8 @@ world2<-left_join(world2, population%>%rename(iso_a3 = iso3))
 f<-ggplot(data = world2) +
   geom_sf(aes(fill = redux)) +
   theme_bw()+
-  scale_fill_manual(values = c("#2F635A","#b9d780", "#feea83",
-                               "#faa175", "#f8696b","#9B2226"), 
-                    name= "Relative reduction in 70q0 \ncompared to current care")+ 
+  scale_fill_manual(values = c("#f8696b",  "#faa175",  "#feea83","#b9d780", "#2F635A"),  
+                    name= "Reduction in all-cause mortality \ncompared to current care")+ 
   theme(legend.position = "right")
 
 f

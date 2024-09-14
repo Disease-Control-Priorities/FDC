@@ -32,6 +32,7 @@ plot<-plot%>%
 
 #plot<-plot%>%na.omit()%>%select(-scenario, -cov_adj, -group)
 
+write.csv(plot, "../shiny/FDC/cascade_fig.csv", row.names = F)
   
 #cascade line plot:
 plot2<-plot%>%group_by(year, new_name)%>%
@@ -93,3 +94,28 @@ cov_inc<-bind_rows(cov_inc, cov_inc%>%filter(new_name=="Worst case, population-w
 unique(cov_inc$intervention)
 
 write.csv(cov_inc, "new_scale_up.csv", row.names = F)
+
+
+
+
+# data for SP
+
+plot<-left_join(df, adjust)%>%
+  mutate(cov_adj = ifelse(is.na(cov_adj), 1, cov_adj))%>%
+  mutate(new_name = ifelse(group == "with aspirin, sp" & scenario == "Baseline", "Current care", NA),
+         new_name = ifelse(group == "no aspirin, sp" & scenario == "Scenario 1", "Base case, targeted", new_name),
+         new_name = ifelse(group == "no aspirin, sp" & scenario == "Scenario 2", "Worst case, targeted", new_name),
+         new_name = ifelse(group == "with aspirin, sp" & scenario == "Scenario 2", "Best case, targeted", new_name),
+         new_name = ifelse(group == "no aspirin, sp" & scenario == "Scenario 3", "Base case, population-wide", new_name),
+         new_name = ifelse(group == "with aspirin, sp" & scenario == "Scenario 3", "Worst case, population-wide", new_name), #doesn't actually contain aspirin, just using this temp file to distinguish
+         new_name = ifelse(group == "with aspirin, sp" & scenario == "Scenario 4", "Best case, population-wide", new_name))
+
+plot<-plot%>%
+  mutate(Treated = ifelse(new_name %in% c("Worst case, targeted", "Worst case, population-wide"), Treated*cov_adj, Treated),
+         Control = ifelse(new_name %in% c("Worst case, targeted", "Worst case, population-wide"), Control*cov_adj, Control))%>%
+  na.omit()%>%
+  select(-scenario, -cov_adj, -group)
+
+#plot<-plot%>%na.omit()%>%select(-scenario, -cov_adj, -group)
+
+write.csv(plot, "../shiny/FDC/cascade_SP.csv", row.names = F)

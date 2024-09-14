@@ -11,8 +11,13 @@ library(DT)
 df<-read.csv("for_download.csv", stringsAsFactors = F)
 plot_df<-read.csv("plot_data.csv", stringsAsFactors = F)
 locs<-unique(df$location)
-cov_sp<-read.csv("cascade_data_SP.csv", stringsAsFactors = F)
-cov_pp<-read.csv("cascade_data_trt.csv", stringsAsFactors = F)
+
+cov_sp<-read.csv("cascade_SP.csv", stringsAsFactors = F)
+cov_pp<-read.csv("cascade_fig.csv", stringsAsFactors = F)
+
+
+table1<-read.csv("TABLE1.csv", stringsAsFactors = F)
+
 
 #significant digit formatter function
 so_formatter <- function(x) {
@@ -61,7 +66,7 @@ ui <- fluidPage(
                    plotOutput("plot3")),
           tabPanel("Results",
            h4(strong("Figure 1."), "Cumulative CVD events and deaths averted by FDCs over 2023-2030 compared to maintaining current care"),
-           plotOutput("plot1"),
+           #plotOutput("plot1"),
            h5(em("Note: Cumulative CVD events are the aggregate of 
            nonfatal myocardial infarction, stroke, and heart failure events.
            'FDC with aspirin' refers to a primary 
@@ -69,7 +74,7 @@ ui <- fluidPage(
               FDCs are assumed to contain aspirin.")),
            br(),
            h4(strong("Table 2."), "Impact of FDCs in the year 2050 as compared to maintaining current care over 2020-2050"),
-           formattableOutput("table2"),
+           #formattableOutput("table2"),
            h5(em("Note: 'CVD events' are reported as the population-level aggregate 
               of acute episodes of nonfatal myocardial infarction, stroke, and heart 
               failure. Events and deaths averted are calculated as the difference 

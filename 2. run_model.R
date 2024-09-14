@@ -224,6 +224,7 @@ table1<-output%>%
 
 write.csv(table1, "outputs/TABLE2_072027.csv")
 
+
 #for app#
 
 table1b<-output%>%
